@@ -40,7 +40,7 @@ export default {
           id: '0002',
           imgUrl: 'http://img1.qunarzz.com/piao/fusion/1803/20/831d62d2e1c7be02.png',
           desc: '文化古迹'
-        },
+        }
       ]
     }
   },

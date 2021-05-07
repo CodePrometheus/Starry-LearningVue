@@ -33,6 +33,7 @@ export default {
   line-height: .8rem
   background: #eee
   text-indent: .2rem
+  text-align: left
 
 .item
   overflow: hidden
@@ -47,7 +48,6 @@ export default {
   .item-info
     flex: 1
     text-align: left
-    margin-top: .02rem
     // 显示省略
     min-width: 0
     padding: .1rem

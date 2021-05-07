@@ -30,11 +30,12 @@ export default {
 .title
   line-height: .8rem
   background: #eee
+  text-align: left
 
 .item-img-wrapper
   overflow: hidden
   height: 0
-  padding-bottom: 33.9%
+  padding-bottom: 37.09%
 
   .item-img
     center: center

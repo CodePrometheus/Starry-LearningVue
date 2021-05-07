@@ -2,6 +2,7 @@
   <div class="icons">
     <swiper id="swiper"
             :options="swiperOption"
+            v-if="showSwiper"
     >
       <swiper-slide v-for="(page, index) of pages" :key="index"
       >
@@ -19,6 +20,10 @@
 <script>
 export default {
   name: 'HomeIcons',
+  props: {
+    list: Array
+  },
+
   data () {
     return {
       swiperOption: {
@@ -28,27 +33,14 @@ export default {
         autoplayDisableOnInteraction: false, // 解决swiper手动改滑动之后，不再自动滑动了
         observer: true,
         observeParents: true
-      },
-
-      iconList: [
-        {
-          id: '0001',
-          imgUrl: 'http://img1.qunarzz.com/piao/fusion/1803/95/f3dd6c383aeb3b02.png',
-          desc: '景点门票'
-        },
-        {
-          id: '0002',
-          imgUrl: 'http://img1.qunarzz.com/piao/fusion/1803/20/831d62d2e1c7be02.png',
-          desc: '文化古迹'
-        }
-      ]
+      }
     }
   },
 
   computed: {
     pages () {
       const pages = []
-      this.iconList.forEach((item, index) => {
+      this.list.forEach((item, index) => {
         // 页码计算
         const page = Math.floor(index / 8)
         if (!pages[page]) {
@@ -57,6 +49,10 @@ export default {
         pages[page].push(item)
       })
       return pages
+    },
+
+    showSwiper () {
+      return this.list.length
     }
   }
 

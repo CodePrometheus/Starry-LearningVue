@@ -7,10 +7,10 @@
       <span class="iconfont">&#xe632;</span>
       <span>输入城市/景点/游玩主题</span>
     </div>
-      <div class="header-right">
-        <span>city</span>
-        <span class="iconfont arrow-icon">&#xe64a;</span>
-      </div>
+    <div class="header-right">
+      <span>city</span>
+      <span class="iconfont arrow-icon">&#xe64a;</span>
+    </div>
   </div>
 </template>
 

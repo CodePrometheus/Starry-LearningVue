@@ -19,7 +19,7 @@
 <script>
 export default {
   name: 'recommend',
-  data() {
+  data () {
     return {
       recommendList: [
         {

@@ -43,24 +43,28 @@ export default {
 @import '~@/assets/styles/varibles.styl'
 @import '~@/assets/styles/mixins.styl'
 .title
-  margin-top: .2rem
   line-height: .8rem
   background: #eee
+
 .item-img-wrapper
   overflow: hidden
   height: 0
   padding-bottom: 33.9%
+
   .item-img
     center: center
     width: 100%
+
 .item-info
   text-align: left
   padding: .1rem
+
   .item-title
     line-height: .54rem
     font-size: .28rem
     color: #212121
     ellipsis()
+
   .item-desc
     line-height: .4rem
     color: #616161

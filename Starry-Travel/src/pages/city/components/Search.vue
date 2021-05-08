@@ -1,11 +1,12 @@
 <template>
-  <div class="search">
-    <input v-model="keyword"
-           class="search-input"
-           type="text"
-           placeholder="输入城市名或拼音"
-    >
-
+  <div>
+    <div class="search">
+      <input v-model="keyword"
+             class="search-input"
+             type="text"
+             placeholder="输入城市名或拼音"
+      >
+    </div>
     <div class="search-content" ref="search" v-show="keyword">
       <ul>
         <li class="search-item border-bottom"
@@ -27,6 +28,7 @@
 
 <script>
 import Bscroll from 'better-scroll'
+import { mapMutations } from 'vuex'
 
 export default {
   name: 'CitySearch',
@@ -43,10 +45,12 @@ export default {
 
   methods: {
     handleCityClick (city) {
-      this.$store.commit('toChangeCity', city)
+      this.toChangeCity(city)
       this.keyword = ''
+      // 搜索选择完跳转到首页
       this.$router.push('/')
-    }
+    },
+    ...mapMutations(['toChangeCity'])
   },
 
   computed: {
@@ -68,11 +72,14 @@ export default {
         const result = []
         for (let i in this.cities) {
           this.cities[i].forEach((value) => {
+            // search from city.json
             if (value.spell.indexOf(this.keyword) > -1 || value.name.indexOf(this.keyword) > -1) {
+              // add
               result.push(value)
             }
           })
         }
+        // list存储包含关键词的所有城市
         this.list = result
       }, 100)
     }

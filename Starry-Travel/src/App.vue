@@ -1,7 +1,8 @@
 <template>
   <div id="app">
-    <!--显示的是当前路由地址所对应的内容-->
-    <keep-alive exclude="Detail">
+    <!-- 包裹动态组件时,会缓存不活动的组件实例,而不是销毁它们 -->
+    <keep-alive>
+      <!-- 显示的是当前路由地址所对应的内容 -->
       <router-view/>
     </keep-alive>
   </div>

@@ -10,7 +10,7 @@
     <!-- 跳转城市选择 -->
     <router-link to="/city">
       <div class="header-right">
-        {{ this.city }}
+        {{ this.doubleCity }}
         <span class="iconfont arrow-icon">&#xe64a;</span>
       </div>
     </router-link>
@@ -19,11 +19,14 @@
 
 <script>
 
+import { mapGetters, mapState } from 'vuex'
+
 export default {
   name: 'HomeHeader',
-  // 接受父组件内容
-  props: {
-    city: String
+  computed: {
+    // Vuex映射到计算属性中
+    ...mapState(['city']),
+    ...mapGetters(['doubleCity'])
   }
 }
 </script>

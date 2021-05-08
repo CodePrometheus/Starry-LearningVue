@@ -1,6 +1,6 @@
 <template>
   <div class="w">
-    <home-header :city="city"/>
+    <home-header/>
     <home-swiper :list="swiperList"/>
     <home-icon :list="iconList"/>
     <Recommend :list="recommendList"/>
@@ -15,6 +15,7 @@ import HomeIcon from './components/Icons'
 import Recommend from './components/Recommend'
 import Weekend from './components/Weekend'
 import axios from 'axios'
+import { mapState } from 'vuex'
 
 export default {
   name: 'Home',
@@ -28,17 +29,21 @@ export default {
 
   data () {
     return {
-      city: '',
       swiperList: [],
       iconList: [],
       recommendList: [],
-      weekendList: []
+      weekendList: [],
+      lastCity: ''
     }
+  },
+
+  computed: {
+    ...mapState(['city'])
   },
 
   methods: {
     getHomeInfo () {
-      axios.get('/api/index.json')
+      axios.get('/api/index.json?city=' + this.city)
         .then(this.getHomeInfoSuccess)
     },
     getHomeInfoSuccess (res) {
@@ -46,7 +51,6 @@ export default {
       // 正确返回结果
       if (res.ret && res.data) {
         const data = res.data
-        this.city = data.city
         this.swiperList = data.swiperList
         this.iconList = data.iconList
         this.recommendList = data.recommendList
@@ -57,7 +61,17 @@ export default {
 
   // axios
   mounted () {
+    this.lastCity = this.city
     this.getHomeInfo()
+  },
+
+  // 当组件在 <keep-alive> 内被切换, activated生命周期钩子函数将会被对应执行
+  activated () {
+    // 变化才执行
+    if (this.lastCity !== this.city) {
+      this.lastCity = this.city
+      this.getHomeInfo()
+    }
   }
 }
 </script>

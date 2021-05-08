@@ -6,7 +6,7 @@
     >
       <swiper-slide v-for="(page, index) of pages" :key="index"
       >
-        <div class="icon" v-for="item of page" :key="item.id">
+        <div @click="getDetail" class="icon" v-for="item of page" :key="item.id">
           <div class="icon-img">
             <img class="icon-img-content" :src="item.imgUrl">
           </div>
@@ -53,6 +53,12 @@ export default {
 
     showSwiper () {
       return this.list.length
+    }
+  },
+
+  methods: {
+    getDetail () {
+      this.$router.push('/detail/000X')
     }
   }
 

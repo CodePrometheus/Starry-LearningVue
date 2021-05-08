@@ -20,6 +20,12 @@ export default {
   name: 'Weekend',
   props: {
     list: Array
+  },
+
+  methods: {
+    getDetail () {
+      this.$router.push('/detail/000X')
+    }
   }
 }
 </script>

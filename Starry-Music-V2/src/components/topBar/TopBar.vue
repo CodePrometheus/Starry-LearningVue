@@ -83,7 +83,7 @@ export default {
         <el-popover
           width="330"
           trigger="focus"
-          popper-class="searchPop"
+          popper-class="search-pop"
           v-model="isSearchPopShow"
         >
           <el-input
@@ -97,46 +97,46 @@ export default {
           />
           <!-- 热搜榜 -->
           <div v-if="!searchSuggestList.songs">
-            <div class="searchTitle">热搜榜</div>
+            <div class="search-title">热搜榜</div>
             <div
-              class="hotItem"
+              class="hot-item"
               v-for="(v, idx) in hotSearchList"
               :key="idx"
               @click="clickHotSearchItem(v.searchWord)"
             >
               <div
-                class="hotIndex"
-                :class="idx < 3 ? 'topThree' : ''"
+                class="hot-index"
+                :class="idx < 3 ? 'top-three' : ''"
               >
                 {{ idx + 1 }}
               </div>
               <div>
                 <div
-                  class="hotWord"
-                  :class="idx < 3 ? 'hotWordTopThree' : ''"
+                  class="hot-word"
+                  :class="idx < 3 ? 'hot-word-top-three' : ''"
                 >
                   {{ v.searchWord }}
                 </div>
-                <div class="hotContent">
+                <div class="hot-content">
                   {{ v.content }}
                 </div>
               </div>
             </div>
           </div>
           <!-- 搜索建议 -->
-          <div class="searchSuggest">
-            <div class="searchTitle" v-if="searchSuggestList.songs">
+          <div class="search-suggest">
+            <div class="search-title" v-if="searchSuggestList.songs">
               搜索建议
             </div>
             <div
               class="suggestItem"
               v-if="searchSuggestList.songs && searchSuggestList.songs.length !== 0"
             >
-              <div class="suggestItemTitle">
+              <div class="suggest-item-title">
                 <i class="iconfont icon-yinle"/>单曲
               </div>
               <div
-                class="suggestItemDetail"
+                class="suggest-item-detail"
                 v-for="(v, idx) in searchSuggestList.songs"
                 :key="idx"
                 @click="clickSuggestSong(v.id)"
@@ -148,10 +148,10 @@ export default {
                  v-if="searchSuggestList.artists &&
                        searchSuggestList.artists.length !== 0"
             >
-              <div class="suggestItemTitle">
+              <div class="suggest-item-title">
                 <i class="iconfont icon-mic"/> 歌手
               </div>
-              <div class="suggestItemDetail"
+              <div class="suggest-item-detail"
                    v-for="(v, idx) in searchSuggestList.artists"
                    :key="idx"
                    @click="clickSuggestSinger(v.id)"
@@ -163,10 +163,10 @@ export default {
                  v-if="searchSuggestList.albums &&
                        searchSuggestList.albums.length !== 0"
             >
-              <div class="suggestItemTitle">
+              <div class="suggest-item-title">
                 <i class="iconfont icon-more"/> 专辑
               </div>
-              <div class="suggestItemDetail"
+              <div class="suggest-item-detail"
                    v-for="(v, idx) in searchSuggestList.albums"
                    :key="idx"
                    @click="clickSuggestAlbum(v.id)"
@@ -178,10 +178,10 @@ export default {
                  v-if="searchSuggestList.playlists &&
                        searchSuggestList.playlists.length !== 0"
             >
-              <div class="suggestItemTitle  ">
+              <div class="suggest-item-title  ">
                 <i class="iconfont icon-gedan"/> 歌单
               </div>
-              <div class="suggestItemDetail"
+              <div class="suggest-item-detail"
                    v-for="(v, idx) in searchSuggestList.playlists"
                    :key="idx"
                    @click="clickSuggestMusicList(v.id)"
@@ -246,12 +246,12 @@ export default {
   margin: 0 3px;
 }
 
-.searchTitle {
+.search-title {
   font-size: 13px;
   margin: 10px 0 5px 20px;
 }
 
-.hotItem {
+.hot-item {
   display: flex;
   align-items: center;
   padding: 6px 15px;
@@ -259,36 +259,36 @@ export default {
   cursor: pointer;
 }
 
-.hotItem:hover {
+.hot-item:hover {
   background-color: #f2f2f2;
 }
 
-.hotIndex {
+.hot-index {
   margin-right: 15px;
   color: #aaa;
 }
 
-.topThree {
+.top-three {
   color: #e13e3e;
 }
 
-.hotWord {
+.hot-word {
   font-size: 12px;
   color: rgb(51, 51, 51);
 }
 
-.hotWordTopThree {
+.hot-word-top-three {
   font-weight: 600;
   color: black;
 }
 
-.hotContent {
+.hot-content {
   font-size: 12px;
   /** 缩放 */
   transform: scale(0.9) translateX(-5%);
 }
 
-.searchSuggest {
+.search-suggest {
   font-size: 12px;
 }
 
@@ -296,21 +296,21 @@ export default {
   cursor: pointer;
 }
 
-.suggestItemTitle {
+.suggest-item-title {
   background-color: #f5f5f7;
   padding: 4px 8px;
 }
 
-.suggestItemTitle i {
+.suggest-item-title i {
   font-size: 15px;
 }
 
-.suggestItemDetail {
+.suggest-item-detail {
   font-size: 12px;
   padding: 4px 26px;
 }
 
-.suggestItemDetail:hover {
+.suggest-item-detail:hover {
   background-color: #f2f2f2;
 }
 </style>

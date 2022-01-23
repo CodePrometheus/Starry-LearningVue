@@ -108,15 +108,6 @@ i,tr,.buttons div {
   .clear-fix {
     zoom: 1;
   }
-  
-  /* .left {
-    float: left;
-  }
-  
-  .right {
-    float: right;
-  }
-   */
    
 /* 火狐专用属性 */
 @-moz-document url-prefix() {
@@ -124,7 +115,7 @@ i,tr,.buttons div {
     height: calc(100vh - 105px) !important;
   }
 
-  .routerView {
+  .router-view {
     height: calc(100vh - 105px) !important;
   }
 
@@ -132,7 +123,7 @@ i,tr,.buttons div {
     height: calc(100vh - 158px) !important;
   }
 
-  .commentCardSwitch {
+  .comment-card-switch {
     top: calc(100vh - 105px) !important;
   }
 
@@ -140,7 +131,7 @@ i,tr,.buttons div {
     height: calc(100vh - 105px) !important;
   }
 
-  .musicDetailCard .album {
+  .music-detail-card .album {
     height: unset !important;
   }
 
@@ -148,7 +139,7 @@ i,tr,.buttons div {
     height: calc(100vh - 165px) !important;
   }
 
-  .musicDetailCard {
+  .music-detail-card {
     height: calc(100vh - 55px) !important;
   }
 
@@ -164,15 +155,15 @@ i,tr,.buttons div {
     height: calc(100vh - 105px) !important;
   }
 
-  .mvList .cardList {
+  .mv-list .cardList {
     height: calc(100vh - 265px) !important;
   }
 
-  .videoList .cardList {
+  .video-list .cardList {
     height: calc(100vh - 215px) !important;
   }
 
-  .videoDetail {
+  .video-detail {
     height: calc(100vh - 105px) !important;
   }
 

@@ -88,24 +88,6 @@ tbody .el-table th, .el-table tr {
     background-color: #e5e5e5 !important;
 }
 
-/* .el-slider__bar {
-    background-color: #ff4e4e !important;
-}
-
-.el-slider__button {
-    border: 1px solid #ccc !important;
-    width: 10px !important;
-    height: 10px !important;
-}
-
-.el-slider__runway {
-    height: 5px ! important;
-}
-
-.el-slider__bar {
-    height: 5px !important;
-} */
-
 .el-slider__button-wrapper {
     top: -16px !important;
 }
@@ -162,14 +144,14 @@ body .el-table .el-table__row .currentRow {
     background-color: #e0e0e0;
 }
 
-.searchPop {
+.search-pop {
     height: 380px;
     overflow-y: scroll;
     margin: 0 !important;
     padding: 0 !important;
   }
 
-  .searchPop::-webkit-scrollbar {
+  .search-pop::-webkit-scrollbar {
     display: none;
 }
 
@@ -225,14 +207,14 @@ tr .is-leaf:nth-child(7) {
     top: unset !important;
 }
 
-.sortPop {
+.sort-pop {
     position: absolute;
     z-index: 0 !important;
     height: 40%;
     overflow-y: scroll;
 }
 
-.sortPop::-webkit-scrollbar {
+.sort-pop::-webkit-scrollbar {
     width: 6px;
 }
 

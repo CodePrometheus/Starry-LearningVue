@@ -21,7 +21,7 @@ export default {
     }
   },
   methods: {
-    showSortPop() {
+    getSortList() {
       if (this.sortList.length === 0) {
         // 触发回调
         this.$emit('getSortList')
@@ -46,7 +46,7 @@ export default {
       trigger="click"
       :visible-arrow="false"
       v-model="isSortPopShow"
-      @show="showSortPop"
+      @show="getSortList"
     >
       <div class="sort-box" slot="reference">
         {{ currentTag.name }} <i class="iconfont icon-arrow-right-bold" />
@@ -56,7 +56,7 @@ export default {
         <div
           class="sort-item"
           v-for="(v, idx) in sortList"
-          :class="currentTag.name === v.name ? 'currentItem' : ''"
+          :class="currentTag.name === v.name ? 'current-item' : ''"
           :key="idx"
           @click="clickItem(v)"
         >
@@ -101,7 +101,7 @@ export default {
   transform: scale(0.9);
 }
 
-.currentItem {
+.current-item {
   color: #eb4f4f;
   background-color: #fcebeb;
 }

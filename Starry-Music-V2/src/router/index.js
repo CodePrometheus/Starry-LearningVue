@@ -14,6 +14,13 @@ const Ranking = () =>
     import('../views/discover/discoverChildren/Ranking.vue')
 const Singer = () =>
     import('../views/discover/discoverChildren/Singer.vue')
+const Video = () =>
+    import('../views/video/Video.vue')
+const VideoList = () =>
+    import('../views/video/videoChildren/VideoList.vue')
+const MvList = () =>
+    import('../views/video/videoChildren/MvList.vue')
+
 
 const routes = [
   { path: '/', redirect: '/index' },
@@ -52,6 +59,14 @@ const routes = [
           }
         ],
       },
+      {
+        path: '/video', component: Video,
+        redirect: '/video/video-list',
+        children: [
+          { path: '/video/video-list', component: VideoList },
+          { path: '/video/mv-list', component: MvList },
+        ]
+      }
     ],
   },
 ]

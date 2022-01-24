@@ -50,7 +50,7 @@ export default {
     :infinite-scroll-disabled="disabled"
     :infinite-scroll-distance="300"
     :infinite-scroll-immediate="false"
-    ref="card"
+    ref="listCard"
   >
     <div
       class="card-item"

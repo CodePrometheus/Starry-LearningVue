@@ -72,7 +72,7 @@ export default {
 }
 
 .recommend {
-  max-width: 90%;
+  max-width: 95%;
 }
 
 .carousel {

@@ -10,6 +10,10 @@ const MusicList = () =>
   import('../views/discover/discoverChildren/MusicList.vue')
 const MusicListItem = () =>
   import('../views/discover/discoverChildren/MusicListItem.vue')
+const Ranking = () =>
+    import('../views/discover/discoverChildren/Ranking.vue')
+const Singer = () =>
+    import('../views/discover/discoverChildren/Singer.vue')
 
 const routes = [
   { path: '/', redirect: '/index' },
@@ -38,6 +42,14 @@ const routes = [
               }
             ]
           },
+          {
+            path: '/discover/ranking',
+            component: Ranking
+          },
+          {
+            path: '/discover/singer',
+            component: Singer
+          }
         ],
       },
     ],

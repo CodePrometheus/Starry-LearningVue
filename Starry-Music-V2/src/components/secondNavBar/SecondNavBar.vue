@@ -1,7 +1,7 @@
 <script>
 export default {
   props: {
-    hotTags: {
+    secondData: {
       type: Array,
       default() {
         return []
@@ -36,7 +36,7 @@ export default {
   },
   watch: {
     currentTag(tag) {
-      this.tag = this.hotTags.findIndex(
+      this.tag = this.secondData.findIndex(
           v => v.name === tag.name
       )
     }
@@ -48,7 +48,7 @@ export default {
   <div class="nav-bar">
     <div
       class="nav-item"
-      v-for="(v, idx) in hotTags"
+      v-for="(v, idx) in secondData"
       :key="idx"
       :class="idx === tag ? 'active' : ''"
       @click="clickSecondItem(idx)"

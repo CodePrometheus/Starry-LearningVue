@@ -19,7 +19,7 @@ export default {
       sortList: [],
       entry: {},
       currentTag: {},
-      hotTags: [],
+      secondData: [],
       musicList: {},
       page: 1,
     }
@@ -36,7 +36,7 @@ export default {
     async getHotTag() {
       let res = await this.$request('/playlist/hot')
       this.currentTag = res.data.tags[0]
-      this.hotTags = res.data.tags
+      this.secondData = res.data.tags
     },
     clickSortBoxItem(v) {
       this.currentTag = v
@@ -44,7 +44,7 @@ export default {
       this.getMusicList()
     },
     clickSecondItem(v) {
-      this.currentTag = this.hotTags[v]
+      this.currentTag = this.secondData[v]
       this.page = 1
       this.getMusicList()
     },
@@ -98,7 +98,7 @@ export default {
       </div>
       <div class="right">
         <second-nav-bar
-          :hotTags="hotTags"
+          :secondData="secondData"
           :width="0"
           :currentTag="currentTag"
           @clickSecondItem="clickSecondItem"

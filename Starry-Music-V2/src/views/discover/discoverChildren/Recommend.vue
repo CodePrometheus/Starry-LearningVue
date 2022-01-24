@@ -29,7 +29,7 @@ export default {
       )
     },
     getCardList() {
-      this.$request('/personalized', { limit: 10}).then((res) => {
+      this.$request('/personalized', { limit: 10 }).then((res) => {
         this.cardList = res.data.result
       })
     }

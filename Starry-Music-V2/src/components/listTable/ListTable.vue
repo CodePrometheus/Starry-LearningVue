@@ -5,26 +5,26 @@ export default {
       type: Object,
       default() {
         return {}
-      },
-      isFindAllShow: {
-        type: Boolean,
-        default() {
-          return true
-        }
-      },
-      idList: {
-        type: String,
-        default() {
-          return ""
-        }
-      },
-      cover: {
-        type: String,
-        default() {
-          return ""
-        }
       }
     },
+    isFindAllShow: {
+      type: Boolean,
+      default() {
+        return true
+      }
+    },
+    idList: {
+      type: String,
+      default() {
+        return ''
+      }
+    },
+    cover: {
+      type: String,
+      default() {
+        return ''
+      }
+    }
   },
   methods: {
     clickRow(e) {
@@ -59,7 +59,7 @@ export default {
         />
       </div>
       <div class="list-main">
-        <slot name="title"></slot>
+        <slot name="title" />
         <table>
           <tr
             class="list-row"
@@ -67,7 +67,7 @@ export default {
             (officialDetail.tracks && officialDetail.tracks.slice(0, 5)) ||
             (officialDetail.topSongs && (officialDetail.isOpen ?
              officialDetail.topSongs : officialDetail.topSongs.slice(0, 10))) ||
-             officialDetail.topSongs.slice(0, 10)"
+             officialDetail.songs.slice(0, 10)"
             :key="idx"
             @click="clickRow"
             @dblclick="dbClickRow(officialDetail.id || v.id, idx)"
@@ -99,11 +99,12 @@ export default {
   width: 180px;
   height: 180px;
   cursor: pointer;
+  margin-right: 20px;
 }
 
 .list-cover img {
   width: 100%;
-  border-radius: 10px;
+  border-radius: 20px;
 }
 
 .list-main {
@@ -120,7 +121,7 @@ table {
 }
 
 .list-row {
-  height: 30px;
+  height: 35px;
   width: 100%;
   color: rgb(153, 153, 153);
   display: flex;
@@ -140,19 +141,19 @@ table {
   transform: scale(0.9);
 }
 
-.idx {
-  text-align: center;
-  line-height: 28px;
-  width: 32px;
-}
-
-.name {
+.list-row .name {
   color: rgb(31, 31, 31);
-  width: 85%;
   transform: translate(-5%, -5%) scale(0.9);
+  width: 90%;
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
+}
+
+.idx {
+  text-align: center;
+  line-height: 28px;
+  width: 35px;
 }
 
 .singer {
@@ -165,5 +166,13 @@ table {
 .find-all {
   color: rgb(134, 134, 134);
   width: 100px;
+  height: 30px;
+  transform: scale(0.9) translateX(-5%);
+  cursor: pointer;
+  line-height: 30px;
+}
+
+.find-all i {
+  font-size: 14px;
 }
 </style>

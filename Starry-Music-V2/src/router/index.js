@@ -2,6 +2,7 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 
 Vue.use(VueRouter)
+
 const Index = () => import('../components/Index.vue')
 const Discover = () => import('../views/discover/Discover.vue')
 const Recommend = () =>
@@ -20,7 +21,10 @@ const VideoList = () =>
     import('../views/video/videoChildren/VideoList.vue')
 const MvList = () =>
     import('../views/video/videoChildren/MvList.vue')
-
+const SingerDetail = () =>
+    import('../views/singerDetail/SingerDetail.vue')
+const VideoDetail = () =>
+    import('../views/videoDetail/VideoDetail.vue')
 
 const routes = [
   { path: '/', redirect: '/index' },
@@ -66,6 +70,16 @@ const routes = [
           { path: '/video/video-list', component: VideoList },
           { path: '/video/mv-list', component: MvList },
         ]
+      },
+      {
+        path: '/singer-detail/:id',
+        name: 'singer-detail',
+        component: SingerDetail
+      },
+      {
+        path: '/video-detail/:id/:type',
+        name: 'video-detail',
+        component: VideoDetail
       }
     ],
   },

@@ -114,6 +114,7 @@ export default {
           <second-nav-bar
               class="second-nav-bar"
               :secondData="languageType"
+              :width="50"
               @clickSecondItem="clickLanguage"
           />
         </div>
@@ -122,6 +123,7 @@ export default {
           <second-nav-bar
               class="second-nav-bar"
               :secondData="singerType"
+              :width="50"
               @clickSecondItem="clickSinger"
           />
         </div>
@@ -130,6 +132,7 @@ export default {
           <second-nav-bar
               class="second-nav-bar"
               :secondData="wordType"
+              :width="50"
               @clickSecondItem="clickWord"
           />
         </div>
@@ -176,6 +179,7 @@ export default {
 
 .second-nav-bar {
   width: calc(100% - 50px);
+  margin-left: 5px;
   display: flex;
   align-items: center;
 }

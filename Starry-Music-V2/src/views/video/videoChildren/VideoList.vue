@@ -66,11 +66,16 @@ export default {
         }
       }
     },
-    clickCardItem(v) {
-
+    goVideoDetail({ id }) {
+      this.$router.push({
+        name: 'video-detail',
+        params: {
+          id,
+          type: 'video'
+        }
+      })
     },
     bottomLoad() {
-      console.log("bottomLoad");
       if (this.isMore) {
         this.getVideoList(this.currentTag.id)
       }
@@ -104,7 +109,7 @@ export default {
       :videoList="videoList"
       :isLoad="true"
       :videoType="'video'"
-      @clickCardItem="clickCardItem"
+      @clickCardItem="goVideoDetail"
       @bottomLoad="bottomLoad"
     />
     <go-top scroll=".card-list"/>

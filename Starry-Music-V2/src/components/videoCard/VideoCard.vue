@@ -1,5 +1,5 @@
 <script>
-import { handleMusicTime, handleNum } from "@/plugins/utils.js"
+import { handleMusicTime, handleNum } from '@/plugins/utils.js'
 
 export default {
   data() {
@@ -32,7 +32,7 @@ export default {
   },
   methods: {
     clickCardItem(id, idx, type) {
-      this.$emit('clickCartItem', { id, idx, type })
+      this.$emit('clickCardItem', { id, idx, type })
     },
     load() {
       this.$emit('bottomLoad')
@@ -68,7 +68,7 @@ export default {
         class="cart-item"
         v-for="(v, idx) in videoList"
         :key="idx"
-        @click="clickCardItem(v.id, idx, v,type)"
+        @click="clickCardItem(v.id, idx, v.type)"
       >
         <div class="video-cover">
           <img
@@ -95,7 +95,7 @@ export default {
         :infinite-scroll-disabled="disabled"
         :infinite-scroll-distance="300"
         :infinite-scroll-immediate="false"
-        v-if="videoType === 'video'"
+        v-else-if="videoType === 'video'"
     >
       <div
           class="cart-item"

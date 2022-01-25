@@ -28,7 +28,7 @@ export default {
 <template>
   <div class="video-main">
     <nav-bar @clickNavItem="clickNavItem" :navBarItem="navBarItem"/>
-    <router-view class="video-list"/>
+    <router-view />
   </div>
 </template>
 

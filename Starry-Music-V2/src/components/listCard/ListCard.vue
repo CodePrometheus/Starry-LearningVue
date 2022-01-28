@@ -115,7 +115,7 @@ export default {
 .title {
   margin-top: 8px;
   padding: 0 2px;
-  font-size: 12px;
+  font-size: 14px;
   color: black;
   line-height: 17px;
   text-overflow: -o-ellipsis-lastline;

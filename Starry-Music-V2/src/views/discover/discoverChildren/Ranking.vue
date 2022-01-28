@@ -35,13 +35,13 @@ export default {
       this.officialDetail.push(res)
     },
     clickRow(e) {
-      if (document.querySelector('.selectRow')) {
-        document.querySelector('.selectRow').classList.remove('selectRow')
+      if (document.querySelector('.select-row')) {
+        document.querySelector('.select-row').classList.remove('select-row')
       }
       // 添加样式
-      e.classList.add('selectRow')
+      e.classList.add('select-row')
     },
-    dbClickRow() {},
+    dblClickRow() {},
   }
 }
 </script>
@@ -56,7 +56,7 @@ export default {
           :officialDetail="v"
           :key="idx"
           @clickRow="clickRow"
-          @dbClickRow="dbClickRow"
+          @dblClickRow="dblClickRow"
           @clickFindAll="clickCardItem"
         />
       </div>

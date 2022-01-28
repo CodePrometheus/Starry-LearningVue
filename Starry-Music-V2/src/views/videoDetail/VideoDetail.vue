@@ -1,15 +1,20 @@
 <script>
 import GoTop from '@/components/goTop/GoTop.vue'
-import { formatDate, handleMusicTime, handleNum } from '../../plugins/utils'
+import Comment from '@/components/comment/Comment.vue'
+import { formatDate, handleMusicTime, handleNum } from '@/plugins/utils'
 
 export default {
-  components: { GoTop },
+  components: { GoTop, Comment },
   async created() {
     await this.getRelatedVideo()
     if (this.$route.params.type === 'mv') {
       await this.getMvDetail()
       await this.getMvUrl()
+      await this.getMvComment()
     } else {
+      await this.getVideoDetail()
+      await this.getVideoUrl()
+      await this.getVideoComment()
     }
   },
   data() {
@@ -18,16 +23,17 @@ export default {
       videoUrl: '',
       relatedVideo: [],
       isLike: false,
-      isCollect: false
+      isCollect: false,
+      isCommentLoading: false,
+      comments: {},
+      page: 1
     }
   },
   methods: {
     async getMvDetail() {
-      console.log("this.$route.params.id: ", this.$route.params.id);
       let res = await this.$request('/mv/detail', {
         mvid: this.$route.params.id
       })
-      console.log("getMvDetail: ", res);
       this.videoInfo = res.data.data
     },
     async getMvUrl() {
@@ -35,6 +41,34 @@ export default {
         id: this.$route.params.id
       })
       this.videoUrl = res.data.data.url
+    },
+    async getMvComment(type) {
+      // 不需要缓存结果的接口 , 可在请求 url 后面加一个时间戳参数使 url 不同
+      let timestamp = Date.parse(new Date())
+      this.isCommentLoading = true
+      if (type === 'changePage') {
+        this.scrollToComment()
+      }
+      let res = await this.$request('/comment/mv', {
+        id: this.$route.params.id,
+        offset: 20 * (this.page - 1),
+        timestamp
+      })
+      if (res.data.code !== 200) {
+        this.$message.error("获取评论失败,请稍后重试!")
+        return
+      }
+      this.comments = res.data
+      this.isCommentLoading = false
+    },
+    scrollToComment() {
+      let videoDetail = document.querySelector(".video-detail")
+      let commentTitle = document.querySelector('.comment-title')
+      videoDetail.scrollTo({
+        behavior: 'smooth',
+        // 获取对象相对于版面或由 offsetTop 属性指定的父坐标的计算顶端位置
+        top: commentTitle.offsetTop - 70
+      })
     },
     playVideo() {},
     personal() {},
@@ -51,11 +85,54 @@ export default {
 
     },
     goRelatedVideo(id) {
-
+      this.$router.push({ name: 'video-detail', params: { id, type: 'video' }})
+    },
+    async getVideoComment(type) {
+      let timestamp = Date.parse(new Date())
+      this.isCommentLoading = true
+      if (type === 'changePage') {
+        let videoDetail = document.querySelector(".video-detail")
+        let commentTitle = document.querySelector('.comment-title')
+        videoDetail.scrollTo({
+          behavior: 'smooth',
+          top: commentTitle.offsetTop - 70
+        })
+      }
+      let res = await this.$request('/comment/video', {
+        id: this.$route.params.id,
+        offset: 20 * (this.page - 1),
+        timestamp
+      })
+      if (res.data.code !== 200) {
+        this.$message.error("获取评论失败,请稍后重试!")
+        return
+      }
+      this.comments = res.data
+      this.isCommentLoading = false
+    },
+    async getVideoDetail() {
+      let res = await this.$request('/video/detail', {
+        id: this.$route.params.id
+      })
+      this.videoInfo = res.data.data
+    },
+    async getVideoUrl() {
+      let res = await this.$request('/video/url', {
+        id: this.$route.params.id
+      })
+      this.videoUrl = res.data.urls[0].url;
+    },
+    changePage(page) {
+      this.page = page
+      if (this.$route.params.type === 'mv') {
+        this.getMvComment("changePage")
+      } else if (this.$route.params.type === 'video') {
+        this.getVideoComment("changePage")
+      }
     }
   },
   filters: {
-    showData(value) {
+    showDate(value) {
       const date = new Date(value)
       return formatDate(date, "yyyy-MM-dd")
     },
@@ -120,6 +197,46 @@ export default {
           </div>
         </div>
       </div>
+      <div class="comment">
+        <div class="title comment-title">评论</div>
+        <div class="comment-list" v-loading="isCommentLoading">
+          <comment
+            :comments="comments.hotComments"
+            v-if="comments.hotComments"
+            :commentType="$route.params.type === 'mv' ? 'mv' : 'video'"
+            :commentId="$route.params.id + ''"
+            @getComment="$route.params.type === 'mv' ? getMvComment() : getVideoComment()"
+            @scrollToComment="scrollToComment"
+            ref="hotComments"
+          >
+            <div slot="title">精彩评论</div>
+          </comment>
+          <comment
+            :comments="comments.comments"
+            :commentType="$route.params.type === 'mv' ? 'mv' : 'video'"
+            :commentId="$route.params.id + ''"
+            :isHotComment="comments.hotComments ? false : true"
+            @getComment="$route.params.type === 'mv' ? getMvComment() : getVideoComment()"
+            @scrollToComment="scrollToComment"
+            @transToHotComment="
+              (info) =>
+                $refs.hotComments.floorComment(info.commentId, info.nickName)"
+          >
+            <div slot="title">最新评论</div>
+          </comment>
+        </div>
+        <div class="page">
+          <el-pagination
+            background
+            layout="prev, pager, next"
+            :total="comments.total"
+            small
+            :page-size="20"
+            :current-page="page"
+            @current-change="changePage"
+            />
+        </div>
+      </div>
     </div>
     <div class="right" v-if="relatedVideo.length !== 0">
       <div class="title">相关推荐</div>
@@ -151,11 +268,11 @@ export default {
 .video-detail {
   display: flex;
   justify-content: center;
-  height: calc(100% - 80px);
-  overflow-y: hidden;
+  height: calc(100vh - 120px);
+  overflow-y: scroll;
 }
 
-.video-detail >>> .el-loading-spinner {
+.video-detail >>>.el-loading-spinner {
   top: 40px;
 }
 
@@ -172,7 +289,7 @@ export default {
 }
 
 .right {
-  margin-left: 10px;
+  margin-left: 30px;
 }
 
 .related-item {
@@ -300,5 +417,11 @@ export default {
 .button-item i {
   margin-right: 5px;
   font-size: 12px;
+}
+
+.page {
+  width: 100%;
+  padding-bottom: 20px;
+  text-align: center;
 }
 </style>

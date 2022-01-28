@@ -36,9 +36,9 @@ export default {
       }
       this.$emit('clickRow', path)
     },
-    dbClickRow(id, idx) {
+    dblClickRow(id, idx) {
       let list = this.idList
-      this.$emit('dbClickRow', { id, idx, list })
+      this.$emit('dblClickRow', { id, idx, list })
     },
     clickFindAll(id) {
       let list = this.idList
@@ -70,7 +70,7 @@ export default {
              officialDetail.songs.slice(0, 10)"
             :key="idx"
             @click="clickRow"
-            @dblclick="dbClickRow(officialDetail.id || v.id, idx)"
+            @dblclick="dblClickRow(officialDetail.id || v.id, idx)"
           >
             <td class="idx">{{ idx + 1 }}</td>
             <td class="name">{{ v.name }}</td>
@@ -174,5 +174,9 @@ table {
 
 .find-all i {
   font-size: 14px;
+}
+
+.select-row {
+  background-color: #efefef !important;
 }
 </style>

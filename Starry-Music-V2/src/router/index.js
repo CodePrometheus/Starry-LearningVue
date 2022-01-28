@@ -25,6 +25,20 @@ const SingerDetail = () =>
     import('../views/singerDetail/SingerDetail.vue')
 const VideoDetail = () =>
     import('../views/videoDetail/VideoDetail.vue')
+const MusicListDetail = () =>
+    import('../views/musicListDetail/MusicListDetail.vue')
+const Personal = () =>
+    import('../views/personal/Personal.vue')
+const Favorites = () =>
+    import('../views/favorites/Favorites.vue')
+const FavoriteAlbum = () =>
+    import('../views/favorites/favoritesChildren/FavoriteAlbum.vue')
+const FavoriteSinger = () =>
+    import('../views/favorites/favoritesChildren/FavoriteSinger.vue')
+const FavoriteVideo = () =>
+    import('../views/favorites/favoritesChildren/FavoriteVideo.vue')
+const RecommendMusic = () =>
+    import('../views/recommendMusic/RecommendMusic.vue')
 
 const routes = [
   { path: '/', redirect: '/index' },
@@ -80,6 +94,38 @@ const routes = [
         path: '/video-detail/:id/:type',
         name: 'video-detail',
         component: VideoDetail
+      },
+      {
+        path: '/music-list-detail/:id',
+        name: 'music-list-detail',
+        component: MusicListDetail
+      },
+      {
+        path: '/personal/:uid',
+        name: 'personal',
+        component: Personal
+      },
+      {
+        path: '/favorites',
+        component: Favorites,
+        children: [
+          {
+            path: "/favorites/album",
+            component: FavoriteAlbum
+          },
+          {
+            path: "/favorites/singer",
+            component: FavoriteSinger
+          },
+          {
+            path: "/favorites/video",
+            component: FavoriteVideo
+          }
+        ]
+      },
+      {
+        path: "/recommend-music",
+        component: RecommendMusic
       }
     ],
   },

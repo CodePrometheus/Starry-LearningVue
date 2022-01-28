@@ -68,7 +68,6 @@ export default {
       this.getMvList()
     },
     goMvDetail({ id }) {
-      console.log("goMvDetail");
       this.$router.push({ name: 'video-detail', params: { id, type: 'mv' }})
     },
     bottomLoad() {

@@ -1,15 +1,22 @@
 <script>
+import Login from '../login/Login.vue'
+
 let timer
 export default {
+  components: { Login },
   async created () {
     await this.getHotSearch()
+    await this.getCurrentUserInfo()
   },
   data () {
     return {
       keywords: "",
       searchSuggestList: {},
       hotSearchList: [],
-      isSearchPopShow: false
+      isSearchPopShow: false,
+      isLoginPopShow: false,
+      isRegisteredShow: false,
+      userInfo: {},
     }
   },
   methods: {
@@ -27,7 +34,6 @@ export default {
     },
     async getSearchSuggest (keywords) {
       let res = await this.$request('/search/suggest', { keywords })
-      console.log("res: ", res)
       this.searchSuggestList = res.data.result
     },
     submit (event) {
@@ -63,6 +69,34 @@ export default {
     },
     clickSuggestMusicList (id) {
 
+    },
+    async getCurrentUserInfo() {
+      let timestamp = Date.parse(new Date())
+      let res = await this.$request("/user/account", {
+        timestamp
+      })
+      if (res.data.profile != null) {
+        this.userInfo = res.data.profile
+        this.$store.commit("updateLoginState", true)
+        window.localStorage.setItem("userId", res.data.profile.userId)
+      } else {
+        // 未登录
+        this.$store.commit("updateLoginState", false)
+        if (window.localStorage.getItem("userId")) {
+          window.localStorage.removeItem("userId")
+        }
+      }
+    },
+    goToPersonal() {
+      // 判断是否已在个人主页
+      if (this.$route.path !== '/personal/${this.userInfo.userId}') {
+        this.$router.push({
+          name: 'personal',
+          params: {
+            uid: this.userInfo.userId
+          }
+        })
+      }
     }
   }
 }
@@ -197,11 +231,25 @@ export default {
       <div class="user">
         <div class="avatar">
           <el-popover
-            width="300"
+            width="340"
             trigger="click"
+            v-if="!userInfo.avatarUrl"
           >
+            <login
+              :isRegisteredShow.sync="isRegisteredShow"
+              @getUserInfo="(info) => {
+                   userInfo = info
+                   isLoginPopShow = false
+                 }"
+            />
+            <img src="../../assets/img/test.jpg" slot="reference" @click="isLoginPopShow = !isLoginPopShow" :draggable="false" />
           </el-popover>
+          <img :src="userInfo.avatarUrl" slot="reference" v-else @click="goToPersonal"/>
         </div>
+        <div class="user-name" v-if="userInfo.nickname">
+          {{ userInfo.nickname }}
+        </div>
+        <div class="user-name" v-else>点击头像登录</div>
       </div>
     </div>
   </div>
@@ -312,5 +360,38 @@ export default {
 
 .suggest-item-detail:hover {
   background-color: #f2f2f2;
+}
+
+.right {
+  display: flex;
+  /* 固定在右边*/
+  position: absolute;
+  right: 50px;
+  top: 0;
+  line-height: 50px;
+}
+
+.user {
+  display: flex;
+  align-items: center;
+}
+
+.avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-right: 7px;
+  cursor: pointer;
+}
+
+.avatar img {
+  width: 100%;
+}
+
+.user-name {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.85);
+  width: 100px;
 }
 </style>

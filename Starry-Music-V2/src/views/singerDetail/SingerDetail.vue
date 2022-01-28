@@ -1,8 +1,14 @@
 <script>
 import ListTable from '@/components/listTable/ListTable.vue'
 import VideoCard from '@/components/videoCard/VideoCard.vue'
+import GoTop from '@/components/goTop/GoTop.vue'
 
 import { handleMusicTime } from '../../plugins/utils'
+
+// 记录上一首播放的音乐信息  用于清空小喇叭和红字样式
+let currentRowInfo = {}
+// 定时器名称
+let timer
 
 export default {
   components: { ListTable, VideoCard, GoTop },
@@ -23,12 +29,16 @@ export default {
         mvs: [],
         hasMore: false
       },
-      page: 1,
+      // 专辑页数
+      albumPage: 1,
+      // mv页数
+      mvPage: 1,
       disabled: true,
       isMore: false,
       // 是否是双击操作
       isDb: false,
-      isFindAllShow: true
+      // 查看全部按钮
+      isFindAllShow: true,
     };
   },
   methods: {
@@ -56,7 +66,7 @@ export default {
       let res = await this.$request('/artist/album', {
         id: this.$route.params.id,
         limit: 20,
-        offset: (this.page - 1) * 20
+        offset: (this.albumPage - 1) * 20
       })
       this.isMore = res.data.more
       res = res.data.hotAlbums
@@ -78,9 +88,8 @@ export default {
     async getSingerMv() {
       let res = await this.$request('/artist/mv', {
         id: this.$route.params.id,
-        limit: 20 * this.page
+        limit: 20 * this.mvPage
       })
-      console.log("getSingerMv: ", res.data);
       this.singerMvInfo = res.data
     },
     collect() {
@@ -90,11 +99,61 @@ export default {
         this.getSingerMv()
       }
     },
-    clickRow() {
-
+    clickRow(e) {
+      if (document.querySelector(".select-row")) {
+        document.querySelector(".select-row")
+        .classList.remove("select-row")
+      }
+      e.classList.add("select-row")
     },
-    dbClickRow() {
-
+    dblClickRow({ id, idx, listId }) {
+      this.isDb = true
+      this.listenMusic(id, idx, listId)
+      if (listId !== this.$route.params.id) {
+        let musicListIdx = this.singerAlbum.findIndex(v => v.album.id === listId)
+        this.$store.commit("updateMusicId", id)
+        // 歌单发生变化
+        if (listId !== this.$store.state.musicListId) {
+          this.$store.commit("updateMusicList", {
+            musicList: this.singerAlbum[musicListIdx].songs,
+            musicListId: listId
+          })
+        }
+      } else {
+        this.$store.commit("updateMusicId", id)
+        if (this.$route.params.id !== this.$store.state.musicListId) {
+          this.$store.commit("updateMusicList", {
+            musicList: this.topSongs.topSongs,
+            musicListId: this.$route.params.id
+          })
+        }
+      }
+    },
+    listenMusic(id, idx, listId) {
+      if (currentRowInfo.listId) {
+        this.cleanStyle(currentRowInfo.i, currentRowInfo.listId)
+      }
+    },
+    cleanStyle(i, listId) {
+      let table = document.querySelectorAll("table")
+      // 歌单的索引
+      let listIdx = -1
+      if (listId === this.$route.params.id) {
+        listIdx = 0
+      } else {
+        listIdx = this.singerAlbum.findIndex(v => v.album.id === listId)
+        // 如果没有，说明目前还没有渲染或者还没有请求
+        if (listIdx === -1) {
+          this.$message.error("目前还没有渲染或者还没有请求")
+          return
+        }
+        listIdx += 1
+      }
+      if (table[listIdx] && table[listIdx].children[i]) {
+        let lastRow = table[listIdx].children[i]
+        lastRow.querySelector(".index").innerHTML = i + 1
+        lastRow.querySelector(".music-name").style.color = "#1f1f1f"
+      }
     },
     clickFindAll() {
 
@@ -104,13 +163,13 @@ export default {
     },
     bottomLoad() {
       if (this.singerMvInfo.hasMore === true) {
-        this.page += 1
+        this.mvPage += 1
         this.getSingerMv()
       }
     },
     load() {
       this.disabled = true
-      this.page += 1
+      this.albumPage += 1
       this.getAlbumInfo()
     }
   },
@@ -156,7 +215,7 @@ export default {
             <list-table
               :officialDetail="topSongs"
               @clickRow="clickRow"
-              @dbClickRow="dbClickRow"
+              @dblClickRow="dblClickRow"
               @clickFindAll="clickFindAll"
               :isFindAllShow="isFindAllShow"
               :cover="getImageUrl"
@@ -183,7 +242,7 @@ export default {
               <list-table
                 :officialDetail="v.songsObj"
                 @clickRow="clickRow"
-                @dbClickRow="dbClickRow"
+                @dblClickRow="dblClickRow"
                 @clickFindAll="clickFindAll"
                 :isFindAllShow="isFindAllShow"
                 :cover="v.album.blurPicUrl + '?param=300y300'"

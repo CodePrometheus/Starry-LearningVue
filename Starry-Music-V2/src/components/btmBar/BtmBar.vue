@@ -1,16 +1,23 @@
 <script>
-import { handleMusicTime } from '@/plugins//utils'
+import { handleMusicTime, returnSecond } from '@/plugins/utils'
+let lastSecond = 0
+// 总时长的秒数
+let durationNum = 0
+// 保存当前音量
+let volumeSave = 0
+// 当前音乐类型，用于下载
+let musicType = ""
 
 export default {
   filters: {
-    handleMusicTime
+    handleMusicTime, returnSecond
   },
   data() {
     return {
       musicUrl: '',
       isUserLikeCurrentMusic: false,
-      // 播放模式（顺序播放，随机播放）
       musicList: [],
+      // 播放模式（顺序播放，随机播放）
       playType: 'order',
       musicDetail: {},
       // 当前播放时间位置
@@ -29,13 +36,65 @@ export default {
       currentMusicIdx: 0,
       // 抽屉是否被打开过（如果没打开过，里面的数据是不会渲染的）
       hasDrawerOpened: false,
-      // 当前用户习惯音乐列表
+      // 当前用户喜欢的音乐列表
       likeMusicList: []
     }
   },
+  watch: {
+    "$store.state.musicUrl"(url) {
+      this.pauseMusic()
+      this.musicList = this.$store.state.musicList
+      this.getMusicDetailFromMusicList()
+      this.getMusicDetail(url)
+      durationNum = returnSecond(this.duration)
+      this.getIsUserLikeCurrentMusic()
+    },
+    "$store.state.currentIndex"(currentIdx, lastIdx) {
+      if (this.hasDrawerOpened) {
+        this.handleDrawerListDOM(currentIdx, lastIdx)
+      }
+    },
+    "$store.state.isPlay"(isPlay) {
+      if (isPlay) {
+        this.playMusic()
+      } else {
+        this.pauseMusic()
+      }
+    },
+    "$store.state.isLogin"(current) {
+      if (current) {
+        this.getLikeMusicList()
+      } else {
+        this.likeMusicList = []
+      }
+    }
+  },
   methods: {
+    getMusicDetailFromMusicList() {
+      let idx = this.musicList.findIndex(v => v.id === this.$store.state.musicUrl)
+      if (idx !== -1) {
+        this.currentMusicIdx = idx
+        this.$store.commit("updateCurrentIdx", idx)
+        this.musicDetail = this.musicList[idx]
+        this.duration = this.musicList[idx].dt
+      }
+    },
+    async getMusicDetail(url) {
+      this.$store.commit("updateMusicLoadState", true)
+      let res = await this.$request("/song/url",  { id: url })
+      if (res.data.data[0].url == null) {
+        this.$message.error("该歌曲暂无版权，将为您播放下一首歌曲")
+        this.changeMusic("next")
+        return
+      }
+      this.musicUrl = res.data.data[0].url
+      musicType = res.data.data[0].type.toLowerCase()
+      this.$store.commit("updateMusicLoadState", false)
+    },
+    getIsUserLikeCurrentMusic() {
+      this.isUserLikeCurrentMusic = this.likeMusicList.find(v => v === this.$store.state.musicUrl)
+    },
     dblClickRow(row) {
-      console.log("dblClickRow: ", row.id);
       this.changeMusic("click", row.id)
     },
     changeMusic(type, id) {
@@ -89,11 +148,51 @@ export default {
     pauseMusic() {
       this.$refs.audio.pause()
     },
-    clickDetail() {
+    clickSingerDetail() {
+      if (this.$route.path === `/singer-detail/${this.musicDetail.ar[0].id}`) {
+        this.$router.push({
+          name: 'singer-detail',
+          params: { id: this.musicDetail.ar[0].id }
+        })
+        if (this.$store.state.isMusicDetailShow === true) {
+          this.$store.state.commit("changeMusicDetailState", false)
+        }
+      }
     },
     downloadMusic() {
     },
-    timeupdate() {},
+    timeupdate() {
+      let time = this.$refs.audio.currentTime
+      // 当前播放时间保存到vuex
+      this.$store.commit("updateCurrentTime", time)
+      time = Math.floor(time)
+      if (time !== lastSecond) {
+        lastSecond = time
+        this.currentTime = time
+        this.timeProgress = Math.floor((time / durationNum) * 100)
+      }
+    },
+    changeProgress(e) {
+      this.currentTime = Math.floor((e / 100) * durationNum)
+      this.$refs.audio.currentTime = this.currentTime
+    },
+    changeMutedState() {
+      if (this.isMuted) {
+        this.volume = volumeSave
+      } else {
+        volumeSave = this.volume
+        this.volume = 0
+      }
+      this.isMuted = !this.isMuted
+    },
+    changeVolume(e) {
+      this.$refs.audio.volume = e / 100
+      if (this.isMuted && e > 0) {
+        this.isMuted = false
+      } else if (e === 0 && this.isMuted === false) {
+        this.isMuted = true
+      }
+    },
     async like() {
       if (!window.localStorage.getItem("userInfo")) {
         this.$message.error("请先登录!")
@@ -103,8 +202,8 @@ export default {
       await this.likeMusic(this.$store.state.musicUrl, this.isUserLikeCurrentMusic)
       await this.getLikeMusicList()
     },
-    async likeMusic(id, flag) {
-      let res = await this.$request("/like", { id, flag })
+    async likeMusic(id, like) {
+      let res = await this.$request("/like", { id, like })
       if (res.data.code === 200) {
         this.$message.success("点赞成功!")
       } else {
@@ -120,9 +219,6 @@ export default {
       this.likeMusicList = res.data.ids
       this.$store.commit("updateLikeMusicList", this.likeMusicList)
     },
-    changeProgress() {},
-    changeMutedState() {},
-    changeVolume() {},
     openDrawer() {
       this.drawer = !this.drawer
       this.hasDrawerOpened = true
@@ -147,7 +243,7 @@ export default {
       @timeupdate="timeupdate"
     />
     <div class="left">
-      <div class="avatar">
+      <div class="avatar" @click="$store.commit('changeMusicDetailState')">
         <img
           :src="musicDetail.al.picUrl"
           v-if="musicDetail.al"
@@ -162,7 +258,7 @@ export default {
         <div
           class="singer"
           v-if="musicDetail && musicDetail.name"
-          @click="clickDetail"
+          @click="clickSingerDetail"
         >
           {{ musicDetail.ar[0].name }}
         </div>
@@ -249,7 +345,7 @@ export default {
 .bottom-main {
   border-top: 1px solid #ddd;
   width: 100%;
-  height: 70px;
+  height: 65px;
   position: fixed;
   bottom: 0;
   left: 0;
@@ -270,7 +366,7 @@ export default {
 .avatar {
   width: 40px;
   height: 40px;
-  border-radius: 5px;
+  border-radius: 10px;
   overflow: hidden;
   margin-right: 10px;
   cursor: pointer;
@@ -405,5 +501,19 @@ export default {
   transform: scale(0.9);
   color: #aaa;
   padding: 15px 0;
+}
+
+.music-download {
+  height: 100%;
+  position: relative;
+}
+
+.music-download i {
+  position: absolute;
+  bottom: 5px;
+}
+
+.like {
+  color: #ec4141 !important;
 }
 </style>

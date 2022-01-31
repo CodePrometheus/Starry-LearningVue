@@ -1,5 +1,5 @@
 <script>
-import VideoCard from '@/components/videoCard/VideoCard.vue';
+import VideoCard from '@/components/videoCard/VideoCard.vue'
 
 export default {
   components: { VideoCard },
@@ -53,7 +53,7 @@ export default {
             @bottomLoad="bottomLoad"
         />
       </div>
-      <div v-else class="tip"><div>暂无收藏歌手</div></div>
+      <div v-else class="tip"><div>暂无收藏视频和MV</div></div>
     </div>
   </div>
 </template>

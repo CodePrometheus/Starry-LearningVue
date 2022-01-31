@@ -4,31 +4,31 @@ import { handleMusicTime, handleNum } from '@/plugins/utils.js'
 export default {
   data() {
     return {
-      disabled: true
+      disabled: true,
     }
   },
   filters: {
-    handleMusicTime, handleNum
+    handleMusicTime, handleNum,
   },
   props: {
     videoType: {
       type: String,
       default() {
         return 'singerMv'
-      }
+      },
     },
     videoList: {
       type: Array,
       default() {
         return []
-      }
+      },
     },
     isLoad: {
       type: Boolean,
       default() {
         return false
-      }
-    }
+      },
+    },
   },
   methods: {
     clickCardItem(id, idx, type) {
@@ -37,7 +37,7 @@ export default {
     load() {
       this.$emit('bottomLoad')
       this.disabled = true
-    }
+    },
   },
   watch: {
     videoList() {
@@ -48,8 +48,8 @@ export default {
           this.disabled = true
         }
       }
-    }
-  }
+    },
+  },
 }
 </script>
 
@@ -76,7 +76,7 @@ export default {
             :draggable="false"
           />
           <div class="play-count">
-            <i class="iconfont icon-shipin" />{{ v.playCount | handleNum }}
+            <i class="iconfont icon-shipin"/>{{ v.playCount | handleNum }}
           </div>
           <div class="video-time" v-if="videoType === 'singerMv'">
             {{ v.duration | handleMusicTime }}
@@ -90,29 +90,29 @@ export default {
     </div>
     <!-- Video -->
     <div
-        class="video-list"
-        v-infinite-scroll="load"
-        :infinite-scroll-disabled="disabled"
-        :infinite-scroll-distance="300"
-        :infinite-scroll-immediate="false"
-        v-else-if="videoType === 'video'"
+      class="video-list"
+      v-infinite-scroll="load"
+      :infinite-scroll-disabled="disabled"
+      :infinite-scroll-distance="300"
+      :infinite-scroll-immediate="false"
+      v-else-if="videoType === 'video'"
     >
       <div
-          class="cart-item"
-          v-for="(v, idx) in videoList"
-          :key="idx"
-          @click="clickCardItem(v.vid || v.data.vid, idx, v.type)"
+        class="cart-item"
+        v-for="(v, idx) in videoList"
+        :key="idx"
+        @click="clickCardItem(v.vid || v.data.vid, idx, v.type)"
       >
         <div class="video-cover">
           <img
-              :src="(v.coverUrl || v.data.coverUrl) + '?param=1260y800'"
-              :draggable="false"
+            :src="(v.coverUrl || v.data.coverUrl) + '?param=1260y800'"
+            :draggable="false"
           />
           <div class="play-count">
-            <i class="iconfont icon-shipin" />{{ (v.playTime || v.data.playTime) | handleNum }}
+            <i class="iconfont icon-shipin"/>{{ (v.playTime || v.data.playTime) | handleNum }}
           </div>
           <div class="video-time">
-            {{ (v.durationms || v.data.durationms) | handleMusicTime }}
+            {{ v.durationms | handleMusicTime }}
           </div>
         </div>
         <div class="video-title">
@@ -130,7 +130,6 @@ export default {
   justify-content: left;
   padding: 0;
   margin-top: 20px;
-  height: 100px;
   /** 被打断到多个行中 */
   flex-wrap: wrap;
 }

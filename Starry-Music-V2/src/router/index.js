@@ -39,6 +39,18 @@ const FavoriteVideo = () =>
     import('../views/favorites/favoritesChildren/FavoriteVideo.vue')
 const RecommendMusic = () =>
     import('../views/recommendMusic/RecommendMusic.vue')
+const Search = () =>
+    import('../views/search/Search.vue')
+const SearchSong = () =>
+    import('../views/search/searchChildren/SearchSong.vue')
+const SearchAlbum = () =>
+    import('../views/search/searchChildren/SearchAlbum.vue')
+const SearchVideo = () =>
+    import('../views/search/searchChildren/SearchVideo.vue')
+const SearchSinger = () =>
+    import('../views/search/searchChildren/SearchSinger.vue')
+const SearchMusicList = () =>
+    import('../views/search/searchChildren/SearchMusicList.vue')
 
 const routes = [
   { path: '/', redirect: '/index' },
@@ -126,6 +138,39 @@ const routes = [
       {
         path: "/recommend-music",
         component: RecommendMusic
+      },
+      {
+        path: "/search/:id",
+        name: "search",
+        component: Search,
+        redirect: "/search/song/:id",
+        children: [
+          {
+            path: "/search/song/:id",
+            name: "search-song",
+            component: SearchSong
+          },
+          {
+            path: "/search/album/:id",
+            name: "search-album",
+            component: SearchAlbum
+          },
+          {
+            path: "/search/video/:id",
+            name: "search-video",
+            component: SearchVideo
+          },
+          {
+            path: "/search/singer/:id",
+            name: "search-singer",
+            component: SearchSinger
+          },
+          {
+            path: "/search/music-list/:id",
+            name: "search-music-list",
+            component: SearchMusicList
+          }
+        ]
       }
     ],
   },

@@ -26,7 +26,13 @@ const state = {
   // 已收藏的歌手
   collectedSinger: null,
   // 已收藏的video
-  collectedVideo: null
+  collectedVideo: null,
+  // 音乐详情卡片的显隐
+  isMusicDetailShow: false,
+  // 音乐是否在加载中
+  isLoad: false,
+  // 实时播放时长
+  currentTime: 0,
 }
 
 const store = new Vuex.Store({
@@ -62,6 +68,19 @@ const store = new Vuex.Store({
     },
     updateCollectedSinger(state, collectedSinger) {
       state.collectedSinger = collectedSinger
+    },
+    // 当前播放音乐的索引
+    updateCurrentIdx(state, idx) {
+      state.currentIndex = idx
+    },
+    updateMusicLoadState(state, isLoad) {
+      state.isLoad = isLoad
+    },
+    updateCurrentTime(state, currentTime) {
+      state.currentTime = currentTime
+    },
+    changeMusicDetailState(state) {
+      state.isMusicDetailShow = !state.isMusicDetailShow
     },
     changePlayState(state, isPlay) {
       state.isPlay = isPlay

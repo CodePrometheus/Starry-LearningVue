@@ -1,5 +1,5 @@
 # Starry-LearningVue
-练习Vue2
+Vue2 + Vite/Webpack
 
 ### Starry-Travel
 

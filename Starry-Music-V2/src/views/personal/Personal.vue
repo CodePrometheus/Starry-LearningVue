@@ -57,9 +57,7 @@ export default {
     clickCardItem(id) {
       this.$router.push({
         name: "music-list-detail",
-        params: {
-          id
-        }
+        params: { id }
       })
     }
   },
@@ -107,7 +105,7 @@ export default {
                 动态
               </div>
             </div>
-            <div class="nums-item" @click="$router.push({ name: 'follows', params: { uid: $route.params.uid }})">
+            <div class="nums-item" @click="$router.push({ name: 'follow', params: { uid: $route.params.uid }})">
               <div class="item-top">
                 {{ userInfo.newFollows }}
               </div>
@@ -115,7 +113,7 @@ export default {
                 关注
               </div>
             </div>
-            <div class="nums-item" @click="$router.push({ name: 'followeds', params: { uid: $route.params.uid }})">
+            <div class="nums-item" @click="$router.push({ name: 'followed', params: { uid: $route.params.uid }})">
               <div class="item-top">
                 {{ userInfo.followeds }}
               </div>

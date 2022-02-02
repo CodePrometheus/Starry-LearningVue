@@ -1,12 +1,17 @@
 <script>
-import { formatDate } from '@/plugins/utils';
+import { formatDate } from '@/plugins/utils'
 
 export default {
   data() {
     return {
       commentContent: '',
+      isCommentDialogShow: false,
       // 评论模式 true是常规评论 false是楼层评论
       commentMode: true,
+      // 楼层回复前面几个字的长度
+      floorCommentInputLength: 0,
+      // 用于暂存楼层评论id
+      floorCommentId: '',
     }
   },
   props: {
@@ -14,45 +19,111 @@ export default {
       type: Array,
       default() {
         return []
-      }
+      },
     },
     commentType: {
       type: String,
       default() {
         return ''
-      }
+      },
     },
     commentId: {
       type: String,
       default() {
-        return '';
-      }
+        return ''
+      },
     },
     isHotComment: {
       type: Boolean,
       default() {
         return true
-      }
+      },
+    },
+    // 歌曲评论需要歌曲名称
+    musicTitle: {
+      type: String,
+      default() {
+        return ''
+      },
+    },
+  },
+  watch: {
+    comments() {
+      this.commentContent = ''
+      this.isCommentDialogShow = false
+      this.commentMode = true
+      this.floorCommentInputLength = 0
+      this.floorCommentId = ''
     }
   },
   methods: {
     inputComment(v) {
 
     },
-    submitComment() {},
-    submitFloorComment() {},
+    async submitComment() {
+      if (!this.$store.state.isLogin) {
+        this.$message.error('只有登陆后才能评论哦!')
+        return
+      }
+      if (this.commentContent === '') {
+        this.$message.error('评论内容不能为空!')
+        return
+      }
+      // 判断评论的类型
+      let type
+      switch (this.commentType) {
+        case 'album':
+          type = 3
+          break
+        case 'musicList':
+          type = 2
+          break
+        case 'music':
+          type = 0
+          break
+        case 'mv':
+          type = 1
+          break
+        case 'video':
+          type = 5
+          break
+      }
+      let res = await this.$request('/comment', {
+        t: 1,
+        id: this.commentId,
+        type,
+        content: this.commentContent,
+      }).catch(err => {
+        this.$message.error(err.response.data.msg)
+      })
+      if (!res) return
+      if (res.data.code === 200) {
+        // 单曲卡片评论，还需要关闭卡片
+        if (this.commentType === 'music') {
+          this.isCommentDialogShow = false
+        }
+        this.commentContent = ''
+        this.$emit('getComment')
+      } else {
+        this.$message.error('评论失败,请稍后重试!')
+      }
+    },
+    submitFloorComment() {
+    },
     personal(id) {
 
     },
-    likeComment() {},
-    floorComment() {}
+    likeComment() {
+    },
+    floorComment() {
+    },
   },
   filters: {
     showDate(value) {
       const date = new Date(value)
-      return formatDate(date, "yyyy-MM-dd")
-    }
-  }
+      return formatDate(date, 'yyyy-MM-dd')
+    },
+  },
 }
 </script>
 
@@ -122,7 +193,7 @@ export default {
               @click="likeComment(v.liked, v.commentId)"
               :class="v.liked ? 'likeComment' : ''"
             >
-              <i class="iconfont icon-good" /> {{ v.likedCount }}
+              <i class="iconfont icon-good"/> {{ v.likedCount }}
             </div>
             <div><i class="iconfont icon-zhuanfa"/></div>
             <div><i class="iconfont icon-pinglun" @click="floorComment(v.commentId, v.user.nickname)"/></div>
@@ -232,13 +303,13 @@ export default {
   cursor: pointer;
 }
 
-.el-textarea >>>.el-textarea__inner {
+.el-textarea >>> .el-textarea__inner {
   height: 65px !important;
   font-size: 12px;
   resize: none;
 }
 
-.el-textarea >>>.el-textarea__inner:focus {
+.el-textarea >>> .el-textarea__inner:focus {
   border-color: #aaa;
 }
 </style>

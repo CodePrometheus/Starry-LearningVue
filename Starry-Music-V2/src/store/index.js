@@ -7,7 +7,7 @@ const state = {
   isLogin: false,
   // 音乐的url
   musicUrl: '',
-  // 当前播放歌单的id
+  // 当前播放歌单的id (route)
   musicListId: '',
   // 当前播放的歌单
   musicList: [],

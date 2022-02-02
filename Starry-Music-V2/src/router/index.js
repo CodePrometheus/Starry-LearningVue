@@ -29,6 +29,10 @@ const MusicListDetail = () =>
     import('../views/musicListDetail/MusicListDetail.vue')
 const Personal = () =>
     import('../views/personal/Personal.vue')
+const Follow = () =>
+    import('../views/personal/personalChildren/Follow.vue')
+const Followed = () =>
+    import('../views/personal/personalChildren/Followed.vue')
 const Favorites = () =>
     import('../views/favorites/Favorites.vue')
 const FavoriteAlbum = () =>
@@ -171,6 +175,16 @@ const routes = [
             component: SearchMusicList
           }
         ]
+      },
+      {
+        path: '/personal/follow/:uid',
+        name: 'follow',
+        component: Follow
+      },
+      {
+        path: '/personal/followed/:uid',
+        name: 'followed',
+        component: Followed
       }
     ],
   },

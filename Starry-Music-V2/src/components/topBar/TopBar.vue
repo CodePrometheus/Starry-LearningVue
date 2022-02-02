@@ -104,8 +104,8 @@ export default {
 
 <template>
   <div class="topBar">
-    <div class="logo">
-      <img src="../../assets/img/logo.png"/>
+    <div class="logo" @click="$router.push({ path: '/' })">
+      <img src="../../assets/img/logo.png" :draggable="false"/>
     </div>
     <div class="center">
       <div class="buttons">

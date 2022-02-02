@@ -95,7 +95,7 @@ export default {
     collect() {
     },
     clickTab(e) {
-      if (e.index === 1 && this.singerMvInfo.mvs.length === 0) {
+      if (e.index === '1' && this.singerMvInfo.mvs.length === 0) {
         this.getSingerMv()
       }
     },
@@ -268,7 +268,7 @@ export default {
         </el-tab-pane>
       </el-tabs>
     </div>
-    <go-top scrollObj=".singer-detail" />
+    <go-top scroll=".singer-detail" />
   </div>
 </template>
 

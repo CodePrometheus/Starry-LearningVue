@@ -79,9 +79,9 @@ export default {
         this.duration = this.musicList[idx].dt
       }
     },
-    async getMusicDetail(url) {
+    async getMusicDetail(id) {
       this.$store.commit("updateMusicLoadState", true)
-      let res = await this.$request("/song/url",  { id: url })
+      let res = await this.$request("/song/url",  { id })
       if (res.data.data[0].url == null) {
         this.$message.error("该歌曲暂无版权，将为您播放下一首歌曲")
         this.changeMusic("next")
@@ -224,8 +224,33 @@ export default {
       this.hasDrawerOpened = true
       this.handleDrawerListDOM(this.currentMusicIdx)
     },
-    handleDrawerListDOM(idx) {
-
+    handleDrawerListDOM(currentIndex, lastIndex) {
+      this.$nextTick(() => {
+        let tableRows = document
+        .querySelector(".bottom-main")
+        .querySelectorAll(".el-table__row");
+        // // 直接修改dom样式的颜色无效  可能是因为第三方组件 style scoped的原因
+        // // 通过引入全局样式解决
+        if (tableRows[currentIndex]) {
+          tableRows[currentIndex].children[0]
+          .querySelector(".cell")
+          .classList.add("current-row");
+          tableRows[currentIndex].children[1]
+          .querySelector(".cell")
+          .classList.add("current-row");
+        }
+        if (
+          (lastIndex && lastIndex !== -1 && tableRows[lastIndex]) || lastIndex === 0
+        ) {
+          // 将上一首的类名删掉
+          tableRows[lastIndex].children[0]
+          .querySelector(".cell")
+          .classList.remove("current-row");
+          tableRows[lastIndex].children[1]
+          .querySelector(".cell")
+          .classList.remove("current-row");
+        }
+      })
     }
   }
 };
@@ -321,7 +346,7 @@ export default {
     <el-drawer
       :visible.sync="drawer"
       :with-header="false"
-      width="300"
+      width="400"
     >
       <div class="drawer-header">总{{ musicList.length }}首</div>
       <el-table
@@ -497,7 +522,7 @@ export default {
 }
 
 .drawer-header {
-  font-size: 16px;
+  font-size: 18px;
   transform: scale(0.9);
   color: #aaa;
   padding: 15px 0;

@@ -34,7 +34,7 @@ export default {
       obj = document.querySelector(this.scroll)
       this.el = obj
     }
-    obj.onscroll = (e) => {
+    obj.onscroll = () => {
       if (this.el.scrollTop >= 500 && this.isShow === false) {
         this.isShow = true
         this.isFirstLoad ? (this.isFirstLoad = false) : ''

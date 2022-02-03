@@ -19,19 +19,19 @@ export default {
     this.$nextTick(() => {
       // 判断是否和上一次打开的歌单相同
       if (this.$route.params.id === this.$store.state.musicListId) {
-        this.handleDom(this.$store.state.musicUrl)
+        this.handleDom(this.$store.state.musicId)
       }
     })
   },
   watch: {
-    '$store.state.musicUrl'(current, last) {
+    '$store.state.musicId'(current, last) {
       this.handleDom(current, last)
     },
     '$store.state.createdMusicList'(current, last) {
       if (last.length === 0) {
         this.getIsCollect()
       }
-    }
+    },
   },
   data() {
     return {
@@ -64,9 +64,7 @@ export default {
     // 渲染当前选择播放的样式
     handleDom(current, last) {
       if (document.querySelector('.music-list-detail')) {
-        let tableRows = document
-        .querySelector('.music-list-detail')
-        .querySelectorAll('.el-table__row')
+        let tableRows = document.querySelector('.music-list-detail').querySelectorAll('.el-table__row')
         // 遍历当前musicList 找到当前播放的index的行进行渲染
         // console.log(tableRows);
         let index = this.musicListDetail.tracks.findIndex(
@@ -97,9 +95,7 @@ export default {
             }</div>`
 
             // 将上一首的类名删掉  小喇叭的html已经被替换了，不需要再还原
-            tableRows[lastIndex].children[2]
-            .querySelector('.cell')
-            .classList.remove('current-row')
+            tableRows[lastIndex].children[2].querySelector('.cell').classList.remove('current-row')
           }
         }
       }
@@ -130,25 +126,25 @@ export default {
       if (!this.$store.state.isLogin) return
       this.isCollect = !this.isCollect
       let timestamp = Date.parse(new Date())
-      await this.$request("/playlist/subscribe", {
+      await this.$request('/playlist/subscribe', {
         id: this.$route.params.id,
         t: this.isCollect ? 1 : 2,
-        timestamp
+        timestamp,
       })
       await this.getUserSubMusicList()
     },
     async getUserSubMusicList() {
       let timestamp = Date.parse(new Date())
-      let info = window.localStorage.getItem("userInfo")
+      let info = window.localStorage.getItem('userInfo')
       this.userInfo = info && JSON.parse(info)
-      let res = await this.$request("/user/playlist", {
+      let res = await this.$request('/user/playlist', {
         uid: this.userInfo.userId,
-        timestamp
+        timestamp,
       })
       res = res.data.playlist
       let index = res.findIndex(v => v.subscribed === true)
       this.collectedMusicList = res.slice(index)
-      this.$store.commit("updateCollectMusicList", this.collectedMusicList)
+      this.$store.commit('updateCollectMusicList', this.collectedMusicList)
     },
     clickTab(e) {
       if (e.index === '1' && !this.comments.comments) {
@@ -175,7 +171,7 @@ export default {
     async getDetail(ids) {
       if (this.isMore === false) return
       this.disabled = true
-      let res = await this.$request("/song/detail", { ids })
+      let res = await this.$request('/song/detail', { ids })
       res.data.songs.forEach((v, idx) => {
         res.data.songs[idx].dt = handleMusicTime(v.dt)
       })
@@ -196,7 +192,38 @@ export default {
         })
       }
     },
-    clickCell() {
+    async clickCell(row, column, cell) {
+      if (cell.querySelector('.icon-download')) {
+        let res = await this.$request('/song/url', { id: row.id })
+        if (res.data.data[0].url == null) {
+          this.$message.warning('暂时无法获取该资源哦!')
+          return
+        }
+        let url = res.data.data[0].url.match(/\http.*?\.net/)
+        let serve = url[0].match(/http:\/(\S*).music/)[1]
+        if (
+          serve !== '/m7' &&
+          serve !== '/m701' &&
+          serve !== '/m8' &&
+          serve !== '/m801'
+        ) {
+          // 没有对应的代理
+          this.$message.error('匹配不到对应的代理,下载失败!')
+          return
+        }
+        // 截取后面的参数
+        let params = res.data.data[0].url.slice(url[0].length)
+        let downloadMusicInfo = {
+          url: serve + params,
+          name:
+            row.name +
+            ' - ' +
+            row.ar[0].name +
+            '.' +
+            res.data.data[0].type.toLowerCase(),
+        }
+        this.$store.commit('updateDownloadMusicInfo', downloadMusicInfo)
+      }
     },
     handleIndex(idx) {
       idx += 1

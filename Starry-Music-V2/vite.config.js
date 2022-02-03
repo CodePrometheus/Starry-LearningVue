@@ -17,7 +17,7 @@ const config = defineConfig({
         ws: true,
         rewrite: path => path.replace(/^\/api/, '')
       },
-      'm7': {
+      '/m7': {
         target: 'http://m7.music.126.net',
         changeOrigin: true,
         ws: true,
@@ -29,7 +29,7 @@ const config = defineConfig({
         ws: true,
         rewrite: path => path.replace(/^\/m701/, '')
       },
-      'm8': {
+      '/m8': {
         target: 'http://m8.music.126.net',
         changeOrigin: true,
         ws: true,

@@ -55,6 +55,8 @@ const SearchSinger = () =>
     import('../views/search/searchChildren/SearchSinger.vue')
 const SearchMusicList = () =>
     import('../views/search/searchChildren/SearchMusicList.vue')
+const Album = () =>
+    import('../views/album/Album.vue')
 
 const routes = [
   { path: '/', redirect: '/index' },
@@ -185,6 +187,11 @@ const routes = [
         path: '/personal/followed/:uid',
         name: 'followed',
         component: Followed
+      },
+      {
+        path: '/album/:id',
+        name: 'album',
+        component: Album
       }
     ],
   },

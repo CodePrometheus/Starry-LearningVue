@@ -13,12 +13,12 @@ export default {
       await this.getRecommendMusic()
       // 判断是否和上一次打开的歌单相同
       if (this.musicListId === this.$store.state.musicListId) {
-        this.handleDOM(this.$store.state.musicUrl)
+        this.handleDOM(this.$store.state.musicId)
       }
     }
   },
   watch: {
-    "$store.state.musicUrl"(current, last) {
+    "$store.state.musicId"(current, last) {
       this.handleDOM(current, last)
     }
   },

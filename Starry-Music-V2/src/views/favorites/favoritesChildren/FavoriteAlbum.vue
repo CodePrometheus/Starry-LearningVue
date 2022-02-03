@@ -29,7 +29,7 @@ export default {
       this.$store.commit("updateCollectedAlbum", res.data.data)
     },
     clickCardItem(id) {
-      this.$router.push({ name: "album", params: { id }})
+      this.$router.push({ name: "album", params: { id } })
     }
   },
   watch: {

@@ -54,11 +54,15 @@ export default {
       this.commentMode = true
       this.floorCommentInputLength = 0
       this.floorCommentId = ''
-    }
+    },
   },
   methods: {
-    inputComment(v) {
-
+    inputComment() {
+      if (this.commentMode === false) {
+        if (this.commentContent.length < this.floorCommentInputLength) {
+          this.commentMode = true
+        }
+      }
     },
     async submitComment() {
       if (!this.$store.state.isLogin) {
@@ -108,14 +112,132 @@ export default {
         this.$message.error('评论失败,请稍后重试!')
       }
     },
-    submitFloorComment() {
+    async submitFloorComment() {
+      if (!this.$store.state.isLogin) {
+        this.$message.warning('只有登陆后才能评论哦!')
+        return
+      }
+      let type
+      switch (this.commentType) {
+        case 'music':
+          type = 0
+          break
+        case 'mv':
+          type = 1
+          break
+        case 'musicList':
+          type = 2
+          break
+        case 'album':
+          type = 3
+          break
+        case 'video':
+          type = 5
+          break
+      }
+      // t:1 发送, 2 回复
+      let res = await this.$request("/comment", {
+        t: 2,
+        id: this.commentId,
+        type,
+        content: this.commentContent,
+        commentId: this.floorCommentId
+      }).catch(e => {
+        this.$message.error(e.response.data.msg)
+      })
+      if (!res) return
+      if (res.data.code === 200) {
+        if (this.commentType === 'music') {
+          this.isCommentDialogShow = false
+        }
+        this.commentContent = ''
+        this.commentMode = true
+        this.floorCommentInputLength = 0
+        this.floorCommentId = ''
+        this.isCommentDialogShow = false
+        this.$emit("getComment")
+      } else {
+        this.$message.error("评论失败,请稍后重试!")
+      }
     },
-    personal(id) {
-
+    personal(uid) {
+      this.$router.push({
+        name: 'personal',
+        params: { uid }
+      })
+      if (this.commentType === 'music') {
+        this.$store.commit("changeMusicDetailState", false)
+      }
     },
-    likeComment() {
+    async likeComment(flag, cid) {
+      if (!this.$store.state.isLogin) {
+        this.$message.warning('只有登陆后才能点赞哦!')
+        return
+      }
+      let timestamp = Date.parse(new Date())
+      let type
+      switch (this.commentType) {
+        case 'music':
+          type = 0
+          break
+        case 'mv':
+          type = 1
+          break
+        case 'musicList':
+          type = 2
+          break
+        case 'album':
+          type = 3
+          break
+        case 'video':
+          type = 5
+          break
+      }
+      let res = await this.$request("/comment/like", {
+        id: this.commentId,
+        cid,
+        t: flag ? 0 : 1,
+        type,
+        timestamp
+      })
+      if (res.data.code === 200) {
+        this.$emit("getComment")
+      } else {
+        this.$message.error("点赞失败,请稍后重试!")
+      }
     },
-    floorComment() {
+    // 点击楼层评论
+    floorComment(commentId, nickName) {
+      if (this.isHotComment === false) {
+        this.$emit('transToHotComment', { commentId, nickName })
+      }
+      if (this.commentType !== 'music') {
+        this.$emit('scrollToComment')
+        let input = document.querySelector('.comment-area')
+        // 阻止focus定位
+        input.children[0].focus({ preventScroll: true })
+      } else {
+        this.openDialog()
+      }
+      this.commentContent = '回复' + nickName + ': '
+      this.floorCommentInputLength = this.commentContent.length
+      this.commentMode = false
+      this.floorCommentId = commentId
+    },
+    openDialog() {
+      this.isCommentDialogShow = !this.isCommentDialogShow
+      this.$nextTick(() => {
+        // 评论框获得焦点
+        let input = document.querySelector('.music-comment-area')
+        input.children[0].focus()
+      })
+    },
+    closeCommentDialog() {
+      this.commentContent = ''
+      this.isCommentDialogShow = false
+      this.commentMode = true
+      this.floorCommentInputLength = 0
+      this.floorCommentId = ''
     },
   },
   filters: {
@@ -150,6 +272,40 @@ export default {
           评论
         </el-button>
       </div>
+    </div>
+    <!-- 音乐单曲评论 -->
+    <div class="music-comment" v-else-if="commentType !== '' && commentType === 'music'">
+      <el-button class="comment-card-button" size="mini" round @click="openDialog">
+        <i class="iconfont icon-ziyuan"/> 发表我的音乐评论
+      </el-button>
+      <el-dialog
+        :visible="isCommentDialogShow"
+        width="450px"
+        @close="closeCommentDialog"
+        append-to-body
+        class="comment-dialog"
+      >
+        <div class="music-title">歌曲：{{ musicTitle }}</div>
+        <el-input
+          type="textarea"
+          class="comment-area music-comment-area"
+          maxlength="140"
+          show-word-limit
+          v-model="commentContent"
+          @input="inputComment"
+          placeholder="留下你的评论"
+        />
+        <div class="comment-btn">
+          <el-button
+            size="mini"
+            round
+            @click="commentMode ? submitComment() : submitFloorComment()"
+            class="submit-comment music-submit-comment"
+          >
+            评论
+          </el-button>
+        </div>
+      </el-dialog>
     </div>
     <div class="comment-header">
       <slot name="title"/>
@@ -191,7 +347,7 @@ export default {
           <div class="comment-button">
             <div
               @click="likeComment(v.liked, v.commentId)"
-              :class="v.liked ? 'likeComment' : ''"
+              :class="v.liked ? 'like-comment' : ''"
             >
               <i class="iconfont icon-good"/> {{ v.likedCount }}
             </div>
@@ -213,11 +369,6 @@ export default {
 
 .el-button:hover {
   background-color: #f2f2f2;
-}
-
-.submit-comment:focus {
-  /** 焦点选择颜色 */
-  background-color: #fff;
 }
 
 .hot-comment {
@@ -303,13 +454,85 @@ export default {
   cursor: pointer;
 }
 
-.el-textarea >>> .el-textarea__inner {
-  height: 65px !important;
-  font-size: 12px;
+.el-textarea /deep/ .el-textarea__inner {
+  height: 100px !important;
+  font-size: 14px;
   resize: none;
 }
 
-.el-textarea >>> .el-textarea__inner:focus {
+.el-textarea /deep/ .el-textarea__inner:focus {
   border-color: #aaa;
+}
+
+.comment-card-button {
+  position: fixed;
+  left: 50%;
+  top: calc(100vh - 120px);
+  transform: translateX(-50%) !important;
+  font-size: 14px;
+  border: none;
+  background-color: #f1f1f1;
+  line-height: 15px;
+  padding: 10px 10px 10px 30px;
+}
+
+.comment-card-button:hover {
+  background-color: #e1e1e1;
+}
+
+.comment-card-button i {
+  position: absolute;
+  top: 50%;
+  left: 10px;
+  transform: translateY(-50%);
+}
+
+.music-comment-area /deep/ .el-textarea__inner {
+  height: 130px !important;
+}
+
+.submit-comment:focus {
+  /** 焦点选择颜色 */
+  background-color: #fff;
+}
+
+.music-submit-comment {
+  padding: 8px 20px;
+  font-size: 14px;
+  background-color: #ec4141;
+  color: white;
+  border: none;
+}
+
+.music-submit-comment:hover {
+  background-color: #eb2e2e;
+  color: white;
+}
+
+.music-submit-comment:focus {
+  color: white;
+  background-color: #ec4141;
+}
+
+.el-button {
+  transform: scale(0.9) translateX(5%);
+}
+
+.comment-dialog /deep/ .el-dialog__body {
+  padding-bottom: 15px !important;
+}
+
+.like-comment, .like-comment i {
+  color: #ec4141 !important;
+}
+
+.music-title {
+  width: 100%;
+  font-weight: bold;
+  color: #333333;
+  text-align: center;
+  margin-bottom: 10px;
+  font-size: 20px;
+  margin-top: 10px;
 }
 </style>

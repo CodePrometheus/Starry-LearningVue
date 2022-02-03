@@ -2,8 +2,8 @@
 import SortBox from '@/components/sortBox/SortBox.vue'
 import SecondNavBar from '@/components/secondNavBar/SecondNavBar.vue'
 import ListCard from '@/components/listCard/ListCard.vue'
-import GoTop from '@/components/goTop/GoTop.vue';
-import VideoCard from '@/components/videoCard/VideoCard.vue';
+import GoTop from '@/components/goTop/GoTop.vue'
+import VideoCard from '@/components/videoCard/VideoCard.vue'
 
 export default {
   components: {
@@ -11,7 +11,7 @@ export default {
     SecondNavBar,
     ListCard,
     GoTop,
-    VideoCard
+    VideoCard,
   },
   async created() {
     await this.getVideoCategory()
@@ -24,7 +24,7 @@ export default {
       sortList: [],
       videoList: [],
       page: 1,
-      isMore: true
+      isMore: true,
     }
   },
   methods: {
@@ -55,7 +55,7 @@ export default {
         if (this.isMore) {
           let res = await this.$request('/video/group', {
             id,
-            offset: 4 * (this.page - 1)
+            offset: 4 * (this.page - 1),
           })
           this.isMore = res.data.hasmore
           this.videoList.push(...res.data.datas)
@@ -71,16 +71,16 @@ export default {
         name: 'video-detail',
         params: {
           id,
-          type: 'video'
-        }
+          type: 'video',
+        },
       })
     },
     bottomLoad() {
       if (this.isMore) {
         this.getVideoList(this.currentTag.id)
       }
-    }
-  }
+    },
+  },
 }
 </script>
 

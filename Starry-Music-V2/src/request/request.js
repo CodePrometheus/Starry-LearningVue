@@ -23,7 +23,7 @@ export function request(url, params) {
     },
     (err) => {
       console.log([err])
-      if (err.response.data.msg === 'Need To Login') {
+      if (err.response.data.msg === '需要登录') {
         store.state.isLogin = false
       } else {
         console.log(err.response.data.msg)
@@ -35,7 +35,7 @@ export function request(url, params) {
 
   if (params) {
     params = {
-      params: params,
+      params,
     }
     return instance.get(url, params)
   } else {

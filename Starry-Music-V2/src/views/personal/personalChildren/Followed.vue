@@ -45,6 +45,9 @@ export default {
       :isLoad="isMore"
       @bottomLoad="bottomLoad"
     />
+    <div v-if="followedList.length === 0" class="tip">
+      暂无粉丝~
+    </div>
     <go-top scroll=".followed"/>
   </div>
 </template>
@@ -58,6 +61,13 @@ export default {
   font-weight: bold;
   font-size: 20px;
   margin: 20px 15px;
+  color: #373737;
+}
+
+.tip {
+  display: flex;
+  justify-content: center;
+  margin-top: 50px;
   color: #373737;
 }
 </style>

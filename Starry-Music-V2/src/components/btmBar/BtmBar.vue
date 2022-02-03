@@ -1,20 +1,21 @@
 <script>
 import { handleMusicTime, returnSecond } from '@/plugins/utils'
+
 let lastSecond = 0
 // 总时长的秒数
 let durationNum = 0
 // 保存当前音量
 let volumeSave = 0
 // 当前音乐类型，用于下载
-let musicType = ""
+let musicType = ''
 
 export default {
   filters: {
-    handleMusicTime, returnSecond
+    handleMusicTime, returnSecond,
   },
   data() {
     return {
-      musicUrl: '',
+      musicId: '',
       isUserLikeCurrentMusic: false,
       musicList: [],
       // 播放模式（顺序播放，随机播放）
@@ -25,11 +26,11 @@ export default {
       // 进度条的位置
       timeProgress: 0,
       // 音量
-      volume: 30,
+      volume: 20,
       // 是否静音
       isMuted: false,
       // 音乐总时长
-      duration: "00.00",
+      duration: '00.00',
       // 播放列表
       drawer: false,
       // 当前音乐在列表中的下标
@@ -37,76 +38,79 @@ export default {
       // 抽屉是否被打开过（如果没打开过，里面的数据是不会渲染的）
       hasDrawerOpened: false,
       // 当前用户喜欢的音乐列表
-      likeMusicList: []
+      likeMusicList: [],
     }
   },
   watch: {
-    "$store.state.musicUrl"(url) {
+    '$store.state.musicId'(id) {
       this.pauseMusic()
       this.musicList = this.$store.state.musicList
       this.getMusicDetailFromMusicList()
-      this.getMusicDetail(url)
+      this.getMusicDetail(id)
       durationNum = returnSecond(this.duration)
       this.getIsUserLikeCurrentMusic()
     },
-    "$store.state.currentIndex"(currentIdx, lastIdx) {
+    '$store.state.currentIndex'(currentIdx, lastIdx) {
       if (this.hasDrawerOpened) {
         this.handleDrawerListDOM(currentIdx, lastIdx)
       }
     },
-    "$store.state.isPlay"(isPlay) {
+    '$store.state.isPlay'(isPlay) {
       if (isPlay) {
         this.playMusic()
       } else {
         this.pauseMusic()
       }
     },
-    "$store.state.isLogin"(current) {
+    '$store.state.isLogin'(current) {
       if (current) {
         this.getLikeMusicList()
       } else {
         this.likeMusicList = []
       }
-    }
+    },
   },
   methods: {
     getMusicDetailFromMusicList() {
-      let idx = this.musicList.findIndex(v => v.id === this.$store.state.musicUrl)
+      let idx = this.musicList.findIndex(v => v.id === this.$store.state.musicId)
       if (idx !== -1) {
         this.currentMusicIdx = idx
-        this.$store.commit("updateCurrentIdx", idx)
+        this.$store.commit('updateCurrentIdx', idx)
         this.musicDetail = this.musicList[idx]
         this.duration = this.musicList[idx].dt
       }
     },
     async getMusicDetail(id) {
-      this.$store.commit("updateMusicLoadState", true)
-      let res = await this.$request("/song/url",  { id })
+      this.$store.commit('updateMusicLoadState', true)
+      let res = await this.$request('/song/url', { id })
       if (res.data.data[0].url == null) {
-        this.$message.error("该歌曲暂无版权，将为您播放下一首歌曲")
-        this.changeMusic("next")
+        this.$message.error('该歌曲暂无版权，将为您播放下一首歌曲')
+        this.changeMusic('next')
         return
       }
-      this.musicUrl = res.data.data[0].url
+      this.musicId = res.data.data[0].url
       musicType = res.data.data[0].type.toLowerCase()
-      this.$store.commit("updateMusicLoadState", false)
+      this.$store.commit('updateMusicLoadState', false)
     },
     getIsUserLikeCurrentMusic() {
-      this.isUserLikeCurrentMusic = this.likeMusicList.find(v => v === this.$store.state.musicUrl)
+      this.isUserLikeCurrentMusic = this.likeMusicList.find(v => v === this.$store.state.musicId)
     },
     dblClickRow(row) {
-      this.changeMusic("click", row.id)
+      this.changeMusic('click', row.id)
     },
     changeMusic(type, id) {
       if (type === 'click') {
         // 点击抽屉row进行切歌
-        this.$store.commit("updateMusicId", id)
-      } else if (type === "pre") {
+        this.$store.commit('updateMusicId', id)
+      } else if (this.playType === 'repeat') {
+        this.$store.commit('updateMusicId', this.musicList[this.currentMusicIdx].id)
+        this.$store.commit('changePlayState', true)
+      } else if (type === 'pre') {
         let currentMusicIdx = this.currentMusicIdx
         let preIdx
-        if (this.playType === "order") {
+        if (this.playType === 'order') {
           preIdx = currentMusicIdx - 1 < 0 ? this.musicList.length - 1 : currentMusicIdx - 1
-        } else if (this.playType === "random") {
+        } else if (this.playType === 'random') {
           if (this.musicList.length === 1) {
             preIdx = currentMusicIdx
           } else {
@@ -117,13 +121,13 @@ export default {
             }
           }
         }
-        this.$store.commit("updateMusicId", this.musicList[preIdx].id)
-      } else if (type === "next") {
+        this.$store.commit('updateMusicId', this.musicList[preIdx].id)
+      } else if (type === 'next') {
         let currentMusicIdx = this.currentMusicIdx
         let nextIdx
-        if (this.playType === "order") {
+        if (this.playType === 'order') {
           nextIdx = currentMusicIdx + 1 === this.musicList.length ? 0 : currentMusicIdx + 1
-        } else if (this.playType === "random") {
+        } else if (this.playType === 'random') {
           if (this.musicList.length === 1) {
             nextIdx = currentMusicIdx
           } else {
@@ -133,11 +137,11 @@ export default {
             }
           }
         }
-        this.$store.commit("updateMusicId", this.musicList[nextIdx].id)
+        this.$store.commit('updateMusicId', this.musicList[nextIdx].id)
       }
     },
     changeState(state) {
-      this.$store.commit("changePlayState", state)
+      this.$store.commit('changePlayState', state)
     },
     changePlayState() {
       !this.$store.state.isPlay ? this.playMusic() : this.pauseMusic()
@@ -149,22 +153,48 @@ export default {
       this.$refs.audio.pause()
     },
     clickSingerDetail() {
-      if (this.$route.path === `/singer-detail/${this.musicDetail.ar[0].id}`) {
+      if (this.$route.path !== `/singer-detail/${this.musicDetail.ar[0].id}`) {
         this.$router.push({
           name: 'singer-detail',
-          params: { id: this.musicDetail.ar[0].id }
+          params: { id: this.musicDetail.ar[0].id },
         })
         if (this.$store.state.isMusicDetailShow === true) {
-          this.$store.state.commit("changeMusicDetailState", false)
+          this.$store.state.commit('changeMusicDetailState', false)
         }
       }
     },
     downloadMusic() {
+      // 匹配资源的域名
+      let url = this.musicId.match(/\http.*?\.net/)
+      // 匹配域名名称，并匹配对应的代理
+      let serve = url[0].match(/http:\/(\S*).music/)[1]
+      if (
+        serve !== '/m7' &&
+        serve !== '/m701' &&
+        serve !== '/m8' &&
+        serve !== '/m801'
+      ) {
+        // 没有对应的代理
+        this.$message.error('匹配不到对应的代理,下载失败!')
+        return
+      }
+      // 截取后面的参数
+      let params = this.musicId.slice(url[0].length)
+      let downloadMusicInfo = {
+        url: serve + params,
+        name:
+          this.musicDetail.name +
+          ' - ' +
+          this.musicDetail.ar[0].name +
+          '.' +
+          musicType,
+      }
+      this.$store.commit('updateDownloadMusicInfo', downloadMusicInfo)
     },
     timeupdate() {
       let time = this.$refs.audio.currentTime
       // 当前播放时间保存到vuex
-      this.$store.commit("updateCurrentTime", time)
+      this.$store.commit('updateCurrentTime', time)
       time = Math.floor(time)
       if (time !== lastSecond) {
         lastSecond = time
@@ -194,30 +224,30 @@ export default {
       }
     },
     async like() {
-      if (!window.localStorage.getItem("userInfo")) {
-        this.$message.error("请先登录!")
+      if (!window.localStorage.getItem('userInfo')) {
+        this.$message.error('请先登录!')
         return
       }
       this.isUserLikeCurrentMusic = !this.isUserLikeCurrentMusic
-      await this.likeMusic(this.$store.state.musicUrl, this.isUserLikeCurrentMusic)
+      await this.likeMusic(this.$store.state.musicId, this.isUserLikeCurrentMusic)
       await this.getLikeMusicList()
     },
     async likeMusic(id, like) {
-      let res = await this.$request("/like", { id, like })
+      let res = await this.$request('/like', { id, like })
       if (res.data.code === 200) {
-        this.$message.success("点赞成功!")
+        this.$message.success('点赞成功!')
       } else {
-        this.$message.error("点赞失败!")
+        this.$message.error('点赞失败!')
       }
     },
     async getLikeMusicList() {
       let timestamp = Date.parse(new Date())
-      let res = await this.$request("/likelist", {
-        uid: window.localStorage.getItem("userId"),
-        timestamp
+      let res = await this.$request('/likelist', {
+        uid: window.localStorage.getItem('userId'),
+        timestamp,
       })
       this.likeMusicList = res.data.ids
-      this.$store.commit("updateLikeMusicList", this.likeMusicList)
+      this.$store.commit('updateLikeMusicList', this.likeMusicList)
     },
     openDrawer() {
       this.drawer = !this.drawer
@@ -226,40 +256,30 @@ export default {
     },
     handleDrawerListDOM(currentIndex, lastIndex) {
       this.$nextTick(() => {
-        let tableRows = document
-        .querySelector(".bottom-main")
-        .querySelectorAll(".el-table__row");
+        let tableRows = document.querySelector('.bottom-main').querySelectorAll('.el-table__row')
         // // 直接修改dom样式的颜色无效  可能是因为第三方组件 style scoped的原因
         // // 通过引入全局样式解决
         if (tableRows[currentIndex]) {
-          tableRows[currentIndex].children[0]
-          .querySelector(".cell")
-          .classList.add("current-row");
-          tableRows[currentIndex].children[1]
-          .querySelector(".cell")
-          .classList.add("current-row");
+          tableRows[currentIndex].children[0].querySelector('.cell').classList.add('current-row')
+          tableRows[currentIndex].children[1].querySelector('.cell').classList.add('current-row')
         }
         if (
           (lastIndex && lastIndex !== -1 && tableRows[lastIndex]) || lastIndex === 0
         ) {
           // 将上一首的类名删掉
-          tableRows[lastIndex].children[0]
-          .querySelector(".cell")
-          .classList.remove("current-row");
-          tableRows[lastIndex].children[1]
-          .querySelector(".cell")
-          .classList.remove("current-row");
+          tableRows[lastIndex].children[0].querySelector('.cell').classList.remove('current-row')
+          tableRows[lastIndex].children[1].querySelector('.cell').classList.remove('current-row')
         }
       })
-    }
-  }
-};
+    },
+  },
+}
 </script>
 
 <template>
   <div class="bottom-main">
     <audio
-      :src="musicUrl"
+      :src="musicId"
       ref="audio"
       autoplay
       @play="changeState(true)"
@@ -274,7 +294,7 @@ export default {
           v-if="musicDetail.al"
           :draggable="false"
         />
-        <img src="../../assets/img/test.jpg" v-else :draggable="false" />
+        <img src="../../assets/img/test.jpg" v-else :draggable="false"/>
       </div>
       <div class="music-info">
         <div class="music-name" v-if="musicDetail && musicDetail.name">
@@ -289,24 +309,25 @@ export default {
         </div>
       </div>
       <div class="music-download" v-if="musicDetail.name">
-        <i class="iconfont icon-download" @click="downloadMusic" />
+        <i class="iconfont icon-download" @click="downloadMusic"/>
       </div>
     </div>
     <div class="center">
       <div class="buttons">
-        <span @click="playType = playType === 'order' ? 'random' : 'order'">
-          <i class="iconfont icon-xunhuan" v-if="playType === 'order'" />
-          <i class="iconfont icon-suiji1" v-else />
+        <span @click="playType = playType === 'order' ? 'random' : (playType === 'repeat' ? 'order' : 'repeat')">
+          <i class="iconfont icon-xunhuan" v-if="playType === 'order'"/>
+          <i class="iconfont icon-suiji1" v-else-if="playType === 'random'"/>
+          <img class="repeat" src="../../assets/img/repeat.png" :draggable="false" v-else-if="playType === 'repeat'"/>
         </span>
         <span @click="musicList.length !== 0 ? changeMusic('pre') : ''">
-          <i class="iconfont icon-shangyishou" />
+          <i class="iconfont icon-shangyishou"/>
         </span>
         <span @click="musicList.length !== 0 ? changePlayState() : ''">
-          <i class="iconfont icon-icon_play" v-if="!this.$store.state.isPlay" />
-           <i class="iconfont icon-zantingtingzhi" v-else />
+          <i class="iconfont icon-icon_play" v-if="!this.$store.state.isPlay"/>
+           <i class="iconfont icon-zantingtingzhi" v-else/>
         </span>
         <span @click="musicList.length !== 0 ? changeMusic('next') : ''">
-          <i class="iconfont icon-xiayishou" />
+          <i class="iconfont icon-xiayishou"/>
         </span>
         <span>
           <i
@@ -403,7 +424,7 @@ export default {
 
 .music-info {
   color: rgb(37, 37, 37);
-  font-size: 12px;
+  font-size: 14px;
   width: 70px;
 }
 
@@ -461,6 +482,13 @@ export default {
 
 .center .icon-suiji1 {
   font-size: 15px;
+}
+
+.center .repeat {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  margin-top: 5px;
 }
 
 .icon-zantingtingzhi {

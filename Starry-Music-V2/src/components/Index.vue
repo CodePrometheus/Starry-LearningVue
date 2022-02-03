@@ -1,9 +1,18 @@
 <script>
-import TopBar from './topBar/TopBar.vue'
-import BtmBar from './btmBar/BtmBar.vue'
+import TopBar from '@/components/topBar/TopBar.vue'
+import BtmBar from '@/components/btmBar/BtmBar.vue'
+import DetailCard from '@/components/detailCard/DetailCard.vue'
+import axios from 'axios'
 
 export default {
-  components: { TopBar, BtmBar },
+  components: { TopBar, BtmBar, DetailCard },
+  created() {
+    if (this.$route.path.search('/music-list-detail') === -1) {
+      this.defaultActive = '/' + this.$route.path.split('/')[1]
+    } else {
+      this.defaultActive = this.$route.path
+    }
+  },
   data() {
     return {
       // 当前激活菜单的 index
@@ -12,52 +21,84 @@ export default {
       createdMusicList: [],
       // 收藏的歌单
       collectedMusicList: [],
+      // 下载的音乐的信息
+      downloadMusicInfo: {
+        name: '',
+        url: '',
+      },
     }
   },
   methods: {
     async getUserMusicList() {
       if (!this.$store.state.isLogin) {
-        this.$message.error("请先进行登录操作")
+        this.$message.error('请先进行登录操作')
         return
       }
       let timestamp = Date.parse(new Date())
-      let res = await this.$request("/user/playlist", {
-        uid: window.localStorage.getItem("userId"),
-        timestamp
+      let res = await this.$request('/user/playlist', {
+        uid: window.localStorage.getItem('userId'),
+        timestamp,
       })
       res = res.data.playlist
       let idx = res.findIndex(v => v.subscribed === true)
-      this.createdMusicList = res.slice(0, idx);
+      this.createdMusicList = res.slice(0, idx)
       this.collectedMusicList = res.slice(idx)
-      this.createdMusicList[0].name = "我喜欢的音乐"
-      this.$store.commit("updateCollectMusicList", this.collectedMusicList)
-      this.$store.commit("updateCreatedMusicList", this.createdMusicList)
-    }
+      this.createdMusicList[0].name = '我喜欢的音乐'
+      this.$store.commit('updateCollectMusicList', this.collectedMusicList)
+      this.$store.commit('updateCreatedMusicList', this.createdMusicList)
+    },
   },
   watch: {
-    "$store.state.isLogin"(current) {
+    '$store.state.isLogin'(current) {
       if (current) {
         this.getUserMusicList()
       } else {
         this.createdMusicList = []
         this.collectedMusicList = []
       }
-    }
-  }
-};
+    },
+    '$store.state.collectMusicList'(current) {
+      this.collectedMusicList = current
+    },
+    '$route.path'(current) {
+      if (current.search('/music-list-detail') === -1) {
+        this.defaultActive = '/' + current.split('/')[1]
+      } else {
+        this.defaultActive = current
+      }
+    },
+    '$store.state.downloadMusicInfo'(current) {
+      axios.get(current.url, { responseType: 'blob' }).then((res) => {
+        let blob = res.data
+        let url = URL.createObjectURL(blob)
+        let a = document.querySelector('#downloadCurrentMusic')
+        this.downloadMusicInfo.url = url
+        this.downloadMusicInfo.name = current.name
+        this.$nextTick(() => {
+          a.click()
+          // 用完释放URL对象
+          URL.revokeObjectURL(url)
+        })
+      }).catch(e => {
+        console.log(e)
+        this.$message.error('下载失败,请稍后重试!')
+      })
+    },
+  },
+}
 </script>
 
 <template>
   <el-container>
     <el-header>
-      <top-bar />
+      <top-bar/>
     </el-header>
     <el-container>
       <el-aside width="160px">
         <el-menu
-            active-text-color="black"
-            router
-            :default-active="defaultActive"
+          active-text-color="black"
+          router
+          :default-active="defaultActive"
         >
           <el-menu-item index="/discover">
             <i class="iconfont icon-yinle"/>
@@ -88,9 +129,9 @@ export default {
           <el-menu-item-group v-if="collectedMusicList.length !== 0">
             <template slot="title" class="group-title">收藏的歌单</template>
             <el-menu-item
-                v-for="(v, idx) in collectedMusicList"
-                :key="idx"
-                :index="'/music-list-detail/' + v.id"
+              v-for="(v, idx) in collectedMusicList"
+              :key="idx"
+              :index="'/music-list-detail/' + v.id"
             >
               <i class="iconfont icon-gedan"/>{{ v.name }}
             </el-menu-item>
@@ -100,12 +141,15 @@ export default {
       <el-main>
         <router-view class="router-view" :key="$route.fullPath"/>
         <a
-            target="_blank"
-            id="downloadCurrentMusic"
+          target="_blank"
+          id="downloadCurrentMusic"
+          :href="downloadMusicInfo.url"
+          :download="downloadMusicInfo.name"
         />
       </el-main>
     </el-container>
     <btm-bar/>
+    <detail-card/>
   </el-container>
 </template>
 

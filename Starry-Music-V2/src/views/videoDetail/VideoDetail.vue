@@ -16,6 +16,14 @@ export default {
       await this.getVideoUrl()
       await this.getVideoComment()
     }
+    if (this.$store.state.collectedVideo == null) {
+      await this.getSubVideo()
+    }
+    await this.getIsSub()
+    if (this.$store.state.likeVideoList == null) {
+      await this.getLikeVideoList()
+    }
+    await this.getIsLike()
   },
   data() {
     return {
@@ -26,19 +34,47 @@ export default {
       isCollect: false,
       isCommentLoading: false,
       comments: {},
-      page: 1
+      page: 1,
     }
   },
   methods: {
+    async getIsSub() {
+      this.isCollect = this.$store.state.collectedVideo.find(v => v.vid === this.$route.params.id)
+    },
+    async getIsLike() {
+      if (this.$route.params.type === 'mv') {
+        this.isLike = this.$store.state.likeVideoList.find(v => v.mlogBaseData.id === this.$route.params.id)
+      } else {
+        console.log("getIsLike: ", this.$store.state.likeVideoList)
+        this.isLike = this.$store.state.likeVideoList.find(
+          v =>
+            v.mlogBaseData.desc === this.videoInfo.description &&
+            v.mlogBaseData.dration === this.videoInfo.durationms
+        )
+      }
+    },
+    // 请求用户收藏的视频列表
+    async getSubVideo() {
+      let timestamp = Date.parse(new Date())
+      let res = await this.$request('/mv/sublist', {
+        limit: 1000,
+        timestamp,
+      })
+      if (res.data.code !== 200) {
+        this.$message.error('获取用户收藏视频失败,请稍后重试!')
+        return
+      }
+      this.$store.commit('updateCollectedVideo', res.data.data)
+    },
     async getMvDetail() {
       let res = await this.$request('/mv/detail', {
-        mvid: this.$route.params.id
+        mvid: this.$route.params.id,
       })
       this.videoInfo = res.data.data
     },
     async getMvUrl() {
       let res = await this.$request('/mv/url', {
-        id: this.$route.params.id
+        id: this.$route.params.id,
       })
       this.videoUrl = res.data.data.url
     },
@@ -52,59 +88,106 @@ export default {
       let res = await this.$request('/comment/mv', {
         id: this.$route.params.id,
         offset: 20 * (this.page - 1),
-        timestamp
+        timestamp,
       })
       if (res.data.code !== 200) {
-        this.$message.error("获取评论失败,请稍后重试!")
+        this.$message.error('获取评论失败,请稍后重试!')
         return
       }
       this.comments = res.data
       this.isCommentLoading = false
     },
     scrollToComment() {
-      let videoDetail = document.querySelector(".video-detail")
+      let videoDetail = document.querySelector('.video-detail')
       let commentTitle = document.querySelector('.comment-title')
       videoDetail.scrollTo({
         behavior: 'smooth',
         // 获取对象相对于版面或由 offsetTop 属性指定的父坐标的计算顶端位置
-        top: commentTitle.offsetTop - 70
+        top: commentTitle.offsetTop - 70,
       })
     },
-    playVideo() {},
-    personal() {},
+    playVideo() {
+      this.$store.commit('changePlayState', false)
+    },
+    personal() {
+      let uid = this.$route.params.type === 'mv' ?
+        this.videoInfo.artists[0].id :
+        this.videoInfo.creator.userId
+      if (this.$route.params.type === 'mv') {
+        this.$router.push({ name: 'singer-detail', params: { id: uid } })
+      } else {
+        this.$router.push({ name: 'personal', params: { uid } })
+      }
+    },
     async getRelatedVideo() {
       let res = await this.$request('/related/allvideo', {
-        id: this.$route.params.id
+        id: this.$route.params.id,
       })
       this.relatedVideo = res.data.data
     },
-    likeVideo() {
-
+    async likeVideo() {
+      this.isLike = !this.isLike
+      let timestamp = Date.parse(new Date())
+      let type = this.$route.params.type === 'mv' ? 1 : 5
+      await this.$request('/resource/like', {
+        type,
+        id: this.$route.params.id,
+        t: this.isLike ? 1 : 0,
+        timestamp,
+      })
+      await this.getLikeVideoList()
     },
-    collectVideo() {
-
+    // 请求用户喜欢的视频列表
+    async getLikeVideoList() {
+      let timestamp = Date.parse(new Date())
+      let res = await this.$request('/playlist/mylike', {
+        limit: 1000,
+        timestamp,
+      })
+      if (res.data.code !== 200) {
+        this.$message.error('获取用户点赞视频失败,请稍后重试!')
+        return
+      }
+      this.$store.commit('updateLikeVideoList', res.data.data.feeds)
+    },
+    async collectVideo() {
+      this.isCollect = !this.isCollect
+      let timestamp = Date.parse(new Date())
+      if (this.$route.params.type === 'video') {
+        await this.$request('/video/sub', {
+          id: this.$route.params.id,
+          t: this.isCollect ? 1 : 0,
+        })
+      } else {
+        await this.$request('/mv/sub', {
+          mvid: this.$route.params.id,
+          t: this.isCollect ? 1 : 0,
+          timestamp,
+        })
+      }
+      await this.getSubVideo()
     },
     goRelatedVideo(id) {
-      this.$router.push({ name: 'video-detail', params: { id, type: 'video' }})
+      this.$router.push({ name: 'video-detail', params: { id, type: 'video' } })
     },
     async getVideoComment(type) {
       let timestamp = Date.parse(new Date())
       this.isCommentLoading = true
       if (type === 'changePage') {
-        let videoDetail = document.querySelector(".video-detail")
+        let videoDetail = document.querySelector('.video-detail')
         let commentTitle = document.querySelector('.comment-title')
         videoDetail.scrollTo({
           behavior: 'smooth',
-          top: commentTitle.offsetTop - 70
+          top: commentTitle.offsetTop - 70,
         })
       }
       let res = await this.$request('/comment/video', {
         id: this.$route.params.id,
         offset: 20 * (this.page - 1),
-        timestamp
+        timestamp,
       })
       if (res.data.code !== 200) {
-        this.$message.error("获取评论失败,请稍后重试!")
+        this.$message.error('获取评论失败,请稍后重试!')
         return
       }
       this.comments = res.data
@@ -112,32 +195,32 @@ export default {
     },
     async getVideoDetail() {
       let res = await this.$request('/video/detail', {
-        id: this.$route.params.id
+        id: this.$route.params.id,
       })
       this.videoInfo = res.data.data
     },
     async getVideoUrl() {
       let res = await this.$request('/video/url', {
-        id: this.$route.params.id
+        id: this.$route.params.id,
       })
-      this.videoUrl = res.data.urls[0].url;
+      this.videoUrl = res.data.urls[0].url
     },
     changePage(page) {
       this.page = page
       if (this.$route.params.type === 'mv') {
-        this.getMvComment("changePage")
+        this.getMvComment('changePage')
       } else if (this.$route.params.type === 'video') {
-        this.getVideoComment("changePage")
+        this.getVideoComment('changePage')
       }
-    }
+    },
   },
   filters: {
     showDate(value) {
       const date = new Date(value)
-      return formatDate(date, "yyyy-MM-dd")
+      return formatDate(date, 'yyyy-MM-dd')
     },
-    handleNum, handleMusicTime
-  }
+    handleNum, handleMusicTime,
+  },
 }
 </script>
 
@@ -145,7 +228,7 @@ export default {
   <div class="video-detail" v-if="videoUrl">
     <div class="left">
       <div class="title">
-        {{ $route.params.type === 'mv' ? "mv详情" : "视频详情" }}
+        {{ $route.params.type === 'mv' ? 'mv详情' : '视频详情' }}
       </div>
       <video
         class="player"
@@ -185,15 +268,15 @@ export default {
         </div>
         <div class="buttons">
           <div class="button-item" @click="likeVideo">
-            <i class="iconfont icon-good" :class="isLike ? 'red' : ''" />
-            {{ isLike ? "已赞" : "赞" }}
+            <i class="iconfont icon-good" :class="isLike ? 'red' : ''"/>
+            {{ isLike ? '已赞' : '赞' }}
           </div>
           <div class="button-item" @click="collectVideo">
-            <i class="iconfont icon-xihuan" :class="isCollect ? 'res' : ''" />
-            {{ isCollect ? "已收藏" : "收藏" }}
+            <i class="iconfont icon-xihuan" :class="isCollect ? 'red' : ''"/>
+            {{ isCollect ? '已收藏' : '收藏' }}
           </div>
           <div class="button-item">
-            <i class="iconfont icon-zhuanfa" /> 分享
+            <i class="iconfont icon-zhuanfa"/> 分享
           </div>
         </div>
       </div>
@@ -234,7 +317,7 @@ export default {
             :page-size="20"
             :current-page="page"
             @current-change="changePage"
-            />
+          />
         </div>
       </div>
     </div>
@@ -247,9 +330,9 @@ export default {
         @click="goRelatedVideo(v.vid)"
       >
         <div class="related-item-cover">
-          <img :src="v.coverUrl + '?param=300y180'" :draggable="false" />
+          <img :src="v.coverUrl + '?param=300y180'" :draggable="false"/>
           <div class="player-count">
-            <i class="iconfont icon-shipin" /> {{ v.playTime | handleNum }}
+            <i class="iconfont icon-shipin"/> {{ v.playTime | handleNum }}
           </div>
           <div class="player-time">
             {{ v.durationms | handleMusicTime }}
@@ -272,7 +355,7 @@ export default {
   overflow-y: scroll;
 }
 
-.video-detail >>>.el-loading-spinner {
+.video-detail >>> .el-loading-spinner {
   top: 40px;
 }
 

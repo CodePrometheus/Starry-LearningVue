@@ -5,8 +5,8 @@ Vue.use(Vuex)
 
 const state = {
   isLogin: false,
-  // 音乐的url
-  musicUrl: '',
+  // 音乐的id
+  musicId: '',
   // 当前播放歌单的id (route)
   musicListId: '',
   // 当前播放的歌单
@@ -17,6 +17,8 @@ const state = {
   likeMusicList: [],
   // 音乐的播放状态
   isPlay: false,
+  // 音乐是否在加载中
+  isMusicLoad: false,
   // 已收藏的歌单
   collectMusicList: [],
   // 创建的歌单
@@ -33,6 +35,15 @@ const state = {
   isLoad: false,
   // 实时播放时长
   currentTime: 0,
+  // 已喜欢的视频
+  likeVideoList: null,
+  // 在歌手详情保存的上一首歌曲信息
+  currentRowInfo: {},
+  // 要下载的音乐信息
+  downloadMusicInfo: {
+    name: '',
+    url: '',
+  },
 }
 
 const store = new Vuex.Store({
@@ -42,9 +53,9 @@ const store = new Vuex.Store({
     updateLoginState(state, flag) {
       state.isLogin = flag
     },
-    // 更新音乐url
-    updateMusicId(state, url) {
-      state.musicUrl = url
+    // 更新音乐id
+    updateMusicId(state, id) {
+      state.musicId = id
     },
     // 更新歌单列表和歌单id
     updateMusicList(state, list) {
@@ -69,6 +80,9 @@ const store = new Vuex.Store({
     updateCollectedSinger(state, collectedSinger) {
       state.collectedSinger = collectedSinger
     },
+    updateCollectedVideo(state, collectedVideo) {
+      state.collectedVideo = collectedVideo
+    },
     // 当前播放音乐的索引
     updateCurrentIdx(state, idx) {
       state.currentIndex = idx
@@ -78,6 +92,17 @@ const store = new Vuex.Store({
     },
     updateCurrentTime(state, currentTime) {
       state.currentTime = currentTime
+    },
+    updateDownloadMusicInfo(state, info) {
+      state.downloadMusicInfo = info
+    },
+    // 更新已喜欢的视频列表
+    updateLikeVideoList(state, list) {
+      state.likeVideoList = list
+    },
+    // 用于记录当前播放行的信息 便于下次渲染和清除播放样式
+    updateCurrentRowInfo(state, currentRowInfo) {
+      state.currentRowInfo = currentRowInfo;
     },
     changeMusicDetailState(state) {
       state.isMusicDetailShow = !state.isMusicDetailShow

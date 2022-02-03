@@ -65,14 +65,14 @@ export default {
       v-if="videoType === 'singerMv' || videoType === 'mv'"
     >
       <div
-        class="cart-item"
+        class="card-item"
         v-for="(v, idx) in videoList"
         :key="idx"
         @click="clickCardItem(v.id, idx, v.type)"
       >
         <div class="video-cover">
           <img
-            :src="(videoType === 'singerMv' ? v.imgUrl : v.cover) + '?param=680y400'"
+            :src="(videoType === 'singerMv' ? v.imgurl : v.cover) + '?param=680y400'"
             :draggable="false"
           />
           <div class="play-count">
@@ -98,7 +98,7 @@ export default {
       v-else-if="videoType === 'video'"
     >
       <div
-        class="cart-item"
+        class="card-item"
         v-for="(v, idx) in videoList"
         :key="idx"
         @click="clickCardItem(v.vid || v.data.vid, idx, v.type)"
@@ -134,10 +134,10 @@ export default {
   flex-wrap: wrap;
 }
 
-.cart-item {
+.card-item {
   max-width: 280px;
   width: 16vw;
-  margin-right: 1%;
+  margin-right: 5%;
   margin-left: 1%;
   margin-bottom: 20px;
   cursor: pointer;

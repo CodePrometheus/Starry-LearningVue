@@ -10,15 +10,15 @@ export default {
     return {
       videoList: [],
       page: 1,
-      hasMore: false
+      hasMore: false,
     }
   },
   methods: {
     clickCardItem({ id, idx }) {
-      if (this.videoList[idx].type === 0) {
-        this.$router.push({ name: "video-detail", params: { id, type: "mv" }})
+      if (this.videoList[idx].type == 0) {
+        this.$router.push({ name: 'video-detail', params: { id, type: 'mv' } })
       } else {
-        this.$router.push({ name: "video-detail", params: { id, type: "video" }})
+        this.$router.push({ name: 'video-detail', params: { id, type: 'video' } })
       }
     },
     bottomLoad() {
@@ -29,14 +29,14 @@ export default {
     },
     async getVideoList() {
       let timestamp = Date.parse(new Date())
-      let res = await this.$request("/mv/sublist", {
+      let res = await this.$request('/mv/sublist', {
         limit: 50,
         offset: 50 * (this.page - 1),
-        timestamp
+        timestamp,
       })
       this.videoList.push(...res.data.data)
-    }
-  }
+    },
+  },
 }
 </script>
 
@@ -46,14 +46,16 @@ export default {
       <div v-if="videoList.length !== 0">
         <div class="header">收藏的视频和MV</div>
         <video-card
-            :videoList="videoList"
-            :videoType="'video'"
-            :isLoad="true"
-            :clickCardItem="clickCardItem"
-            @bottomLoad="bottomLoad"
+          :videoList="videoList"
+          :videoType="'video'"
+          :isLoad="true"
+          :clickCardItem="clickCardItem"
+          @bottomLoad="bottomLoad"
         />
       </div>
-      <div v-else class="tip"><div>暂无收藏视频和MV</div></div>
+      <div v-else class="tip">
+        <div>暂无收藏视频和MV</div>
+      </div>
     </div>
   </div>
 </template>
